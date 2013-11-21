@@ -1,0 +1,4 @@
+All the image files named default-* are taken from the GiNUX Icon Pack 
+by "Asher" (http://findicons.com/pack/756/ginux).
+
+All rights are reserved by the original creator of these icons.
