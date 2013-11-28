@@ -7,6 +7,8 @@
 #ifndef _LUMINA_DESKTOP_GLOBALS_H
 #define _LUMINA_DESKTOP_GLOBALS_H
 
+#include <unistd.h>
+
 class SYSTEM{
 public:
 	//Current Username
