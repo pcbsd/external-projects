@@ -6,7 +6,7 @@
 //===========================================
 
 #include <QDebug>
-#include <QMainWindow>
+//#include <QMainWindow>
 #include <QApplication>
 #include <QFile>
 #include <QDir>
@@ -22,7 +22,7 @@
 
 #include <LuminaXDG.h> //from libLuminaUtils
 
-QFile logfile(QDir::homePath()+"/.lumina.log");
+QFile logfile(QDir::homePath()+"/.lumina/logs/runtime.log");
 void MessageOutput(QtMsgType type, const char *msg){
   QString txt;
   switch(type){
@@ -50,17 +50,23 @@ int main(int argc, char ** argv)
     LXDG::setEnvironmentVars();
     setenv("DESKTOP_SESSION","LUMINA",1);
     setenv("XDG_CURRENT_DESKTOP","LUMINA",1);
+    //Check is this is the first run
+    bool firstrun = false;
+    if(!QFile::exists(logfile.fileName())){ firstrun = true; }
     //Setup the log file
     qDebug() << "Lumina Log File:" << logfile.fileName();
     if(logfile.exists()){ logfile.remove(); } //remove any old one
+      //Make sure the parent directory exists
+      if(!QFile::exists(QDir::homePath()+"/.lumina/logs")){
+        QDir dir;
+        dir.mkpath(QDir::homePath()+"/.lumina/logs");
+      }
     logfile.open(QIODevice::WriteOnly | QIODevice::Append);
     //Startup the Application
     LSession a(argc, argv);
     //Setup Log File
     qInstallMsgHandler(MessageOutput);
     //Setup the QSettings
-    bool firstrun = false;
-    if(!QFile::exists(QDir::homePath()+"/.lumina")){ firstrun = true; }
     QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, QDir::homePath()+"/.lumina/settings");
     qDebug() << "Initializing Lumina";
     //Start up the Window Manager
@@ -69,18 +75,22 @@ int main(int argc, char ** argv)
     WM.startWM();
     //Now start the desktop
     qDebug() << " - Start Desktop";
-    //QDesktopWidget DW;
+    QDesktopWidget DW;
     //for(int i=0; i<DW.screenCount(); i++){
       LDesktop *w = new LDesktop();
       //if( i==0 ){
-        QObject::connect(&WM, SIGNAL(WMShutdown()), w, SLOT(SystemLogout()) );
-        QObject::connect(w, SIGNAL(Finished()),&a,SLOT(closeAllWindows()) );
+        QObject::connect(&WM, SIGNAL(WMShutdown()), &a, SLOT(closeAllWindows()) );
       //}
-      w->move(0,0);
+      //QObject::connect(w, SIGNAL(Finished()),&a,SLOT(closeAllWindows()) );
       w->show();
     //}
     a.processEvents();
-    int retCode = a.exec();
+    int retCode = -1;
+    //try{
+      retCode = a.exec();
+    //}catch(...){
+      //qCritical() << "Desktop Crashed";    
+    //}
     qDebug() << "Stopping the window manager";
     WM.stopWM();
     logfile.close();

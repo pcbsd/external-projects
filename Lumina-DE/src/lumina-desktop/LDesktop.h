@@ -7,15 +7,18 @@
 #ifndef _LUMINA_DESKTOP_LDESKTOP_H
 #define _LUMINA_DESKTOP_LDESKTOP_H
 
+#include <QCoreApplication>
 #include <QToolBar>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QToolButton>
 #include <QDesktopWidget>
 #include <QMenu>
 #include <QInputDialog>
-#include <QStatusBar>
+#include <QProcess>
 #include <QTimer>
+#include <QMainWindow>
+#include <QSettings>
+#include <QFile>
+#include <QDebug>
 
 #include "Globals.h"
 #include "LClock.h"
@@ -23,25 +26,28 @@
 #include "LMixer.h"
 #include "LSysTray.h" //must come last due to X library calls
 
-class LDesktop : public QWidget{
+class LDesktop : public QMainWindow{
 	Q_OBJECT
 public:
 	LDesktop(int deskNum=0);
 	~LDesktop();
 	
 public slots:
-	void SystemLogout(){ emit Finished(); }
-	void SystemRestart(){ SYSTEM::restart(); emit Finished(); }
-	void SystemShutdown(){ SYSTEM::shutdown(); emit Finished(); }
+	void SystemLogout(){ QCoreApplication::exit(0); }
+	void SystemRestart(){ SYSTEM::restart(); QCoreApplication::exit(0); }
+	void SystemShutdown(){ SYSTEM::shutdown(); QCoreApplication::exit(0); }
 	
 private:
-	QHBoxLayout *toolbar;
+	QSettings *settings;
+	QTimer *bgtimer;
+	QDesktopWidget *desktop;
+	QToolBar *toolBar;
+	
+	//ToolBar widgets
 	QToolButton *userTB;
 	LSysTray *systray;
 	LClock *clock;
 	QMenu *sysmenu;
-	QDesktopWidget *desktop;
-	QVBoxLayout *layout;
 	LDeskBar *deskbar;
 	LMixerWidget *mixer;
 	
@@ -49,9 +55,10 @@ private:
 	
 private slots:
 	void SystemRun();
-	void newXEvent(XEvent*);
+	void UpdateBackground();
+	//void newXEvent(XEvent*);
 	
 signals:
-	void Finished();
+	//void Finished();
 };
 #endif

@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QLabel>
 #include <QWidget>
+#include <QString>
 
 class LClock : public QLabel{
 	Q_OBJECT

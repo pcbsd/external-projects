@@ -40,6 +40,9 @@ icons.path = /usr/local/share/pixmaps
 defaulticons.files = default-icons/
 defaulticons.path = /usr/local/share/Lumina-DE/
 
+defaultbackground.files = images/desktop-background.jpg
+defaultbackground.path = /usr/local/share/Lumina-DE/
+
 LIBS     += -lLuminaUtils -lX11 -lXrender
 
 TRANSLATIONS =  i18n/Lumina-DE_af.ts \
@@ -108,4 +111,4 @@ TRANSLATIONS =  i18n/Lumina-DE_af.ts \
 dotrans.path=/usr/local/share/Lumina-DE/i18n/
 dotrans.extra=cd i18n && lrelease-qt4 -nounfinished *.ts && cp *.qm /usr/local/share/Lumina-DE/i18n/
 
-INSTALLS += target desktop icons defaulticons dotrans
+INSTALLS += target desktop icons defaulticons defaultbackground dotrans

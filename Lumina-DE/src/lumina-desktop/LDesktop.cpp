@@ -6,29 +6,31 @@
 //===========================================
 #include "LDesktop.h"
 
-LDesktop::LDesktop(int deskNum) : QWidget(){
-  this->setWindowFlags( Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
-  this->setWindowTitle("luminadesktopinterface");
+LDesktop::LDesktop(int deskNum) : QMainWindow(){
+  this->setCentralWidget(new QWidget(this));
+  this->setWindowFlags( Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
+  this->setFocusPolicy(Qt::NoFocus);
   desktop = new QDesktopWidget();
+  //Setup the internal variables
+  settings = new QSettings(QSettings::UserScope, "LuminaDE","desktop"+QString::number(deskNum), this);
+  bgtimer = new QTimer(this);
+    bgtimer->setSingleShot(true);
   //Create the Toolbar (QToolBar does not work unless in a QMainWindow)
-  toolbar = new QHBoxLayout;
-    toolbar->setContentsMargins(0,0,0,0);
-    toolbar->setSpacing(2);
+  toolBar = new QToolBar(this);
+    toolBar->setMovable(false);
   //Now populate the toolbar
   SetupToolbar(); //always 22 pixels height (systray restriction)
+  this->addToolBar(Qt::TopToolBarArea, toolBar);
   //Now setup the widget location/size
-  this->setLayout(toolbar);
-  this->setGeometry(0,0,desktop->availableGeometry(deskNum).width(), 22);
+  this->centralWidget()->setVisible(false);
+  this->setGeometry(0,0,desktop->availableGeometry(deskNum).width(), 22 ); //toolBar->height() );
   //Start the automated widgets
-  deskbar->start();
-  connect(LSession::instance(), SIGNAL(WindowListEvent(XEvent*)), this, SLOT(newXEvent(XEvent*)) );
+  UpdateBackground();
+  //Make sure the toolbar is in the upper-left corner
+  this->move(0,0);
 }
 
 LDesktop::~LDesktop(){
-  delete sysmenu;
-  delete userTB;
-  delete clock;
-  //delete spacer
 }
 
 // =====================
@@ -47,6 +49,7 @@ void LDesktop::SetupToolbar(){
     userTB->setIcon(QIcon(":/images/default-user.png"));
     userTB->setMenu(sysmenu);
     userTB->setPopupMode(QToolButton::InstantPopup);
+    
   deskbar = new LDeskBar(this);
     deskbar->setHeight(22);
     deskbar->start();
@@ -56,13 +59,17 @@ void LDesktop::SetupToolbar(){
     systray->start();
   mixer = new LMixerWidget(this);
     QTimer::singleShot(0,mixer,SLOT(start())); //don't wait for it to finish starting
+  
+  QWidget *spacer = new QWidget(this);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    
   //Now add them all to the toolbar in the proper order
-  toolbar->addWidget(userTB);
-  toolbar->addWidget(deskbar);
-  toolbar->addStretch(1);
-  toolbar->addWidget(systray);
-  toolbar->addWidget(mixer);
-  toolbar->addWidget(clock);
+  toolBar->addWidget(userTB);
+  toolBar->addWidget(deskbar);
+  toolBar->addWidget(spacer);
+  toolBar->addWidget(systray);
+  toolBar->addWidget(mixer);
+  toolBar->addWidget(clock);
 
 }
 
@@ -71,13 +78,49 @@ void LDesktop::SetupToolbar(){
 // =====================
 
 void LDesktop::SystemRun(){
-  QString cmd = QInputDialog::getText(0,tr("Run Command"),tr("Command:"));
+  qDebug() << "New Run Dialog";
+  QString cmd = QInputDialog::getText(0,"Run Command","Command:");
+  qDebug() << " - Run Dialog Finished";
   if(cmd.isEmpty()){ return; }
-  cmd = "("+cmd+") &";
-  system(cmd.toUtf8());
+  qDebug() << "Running command:" << cmd;
+  QProcess::startDetached(cmd);
 }
 
-void LDesktop::newXEvent(XEvent* event){
-  //this->move(0,0);
-  this->setGeometry(0,0,desktop->width(), 22);
+void LDesktop::UpdateBackground(){
+  //Get the current Background
+  QString cbg = settings->value("background/current", "").toString();
+  //Get the list of background(s) to show
+  QStringList bgL = settings->value("background/filelist", "").toStringList();
+    //Remove any invalid files
+    for(int i=0; i<bgL.length(); i++){ 
+      if( !QFile::exists(bgL[i]) || bgL[i].isEmpty()){ bgL.removeAt(i); i--; } 
+    }
+  //Determine which background to use next
+  int index = bgL.indexOf(cbg);
+  if( (index < 0) || (index >= bgL.length()-1) ){ index = 0; } //use the first file
+  else{ index++; } //use the next file in the list
+  QString bgFile;
+  if( bgL.isEmpty() && cbg.isEmpty()){ bgFile = "default"; }
+  else if( bgL.isEmpty() && QFile::exists(cbg) ){ bgFile = cbg; }
+  else if( bgL.isEmpty() ){ bgFile = "default"; }
+  else{ bgFile = bgL[index]; }
+  //Save this file as the current background
+  settings->setValue("background/current", bgFile);
+  if( (bgFile.toLower()=="default")){ bgFile = "/usr/local/share/Lumina-DE/desktop-background.jpg"; }
+  //Now set this file as the current background
+  QString cmd = "xv +24 -rmode 5 -quit \""+bgFile+"\"";
+  QProcess::startDetached(cmd);
+  //Now reset the timer for the next change (if appropriate)
+  if(bgL.length() > 1){
+    //get the length of the timer (in minutes)
+    int min = settings->value("background/minutesToChange",5).toInt();
+    //reset the internal timer
+    if(bgtimer->isActive()){ bgtimer->stop(); }
+    bgtimer->start(min*60000); //convert from minutes to milliseconds
+  }
 }
+
+/*void LDesktop::newXEvent(XEvent* event){
+  this->move(0,0); //In case the WM does not keep it in the corner
+}*/
+

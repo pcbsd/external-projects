@@ -28,6 +28,6 @@ void LClock::start(){
 void LClock::updateTime(){
   QDateTime CT = QDateTime::currentDateTime();
   //Now update the display
-  this->setText(CT.toString("h:mm AP"));
+  this->setText(CT.toString("h:mm AP")+"\n"+CT.toString("M/d/yy"));
   this->setToolTip(CT.toString("ddd M/d/yy"));
 }

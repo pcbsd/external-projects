@@ -11,16 +11,15 @@
 
 class LSession : public QApplication{
 	Q_OBJECT
+public:
+	LSession(int &argc, char **argv);
+	~LSession();
+	
+	virtual bool x11EventFilter(XEvent *event);
 	
 signals:
 	void SystemTrayEvent(XEvent*);
 	void WindowListEvent(XEvent*);
-	
-public:
-	LSession(int argc, char ** argv);
-	~LSession();
-	
-	virtual bool x11EventFilter(XEvent *event);
 	
 };
 

@@ -6,17 +6,19 @@
 //===========================================
 #include "LSysTray.h"
 
-LSysTray::LSysTray(QWidget *parent) : QFrame(parent){
+LSysTray::LSysTray(QWidget *parent) : QWidget(parent){
+  this->setContentsMargins(0,0,0,0);
   layout = new QHBoxLayout;
     layout->setContentsMargins(0,0,0,0);
-    layout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+    layout->setAlignment(Qt::AlignTop | Qt::AlignRight);
     layout->setSpacing(2);
   this->setLayout(layout);
   //this->setFrameWidth(1);
-  this->setFrameStyle(QFrame::Panel | QFrame::Raised);
-  this->setLineWidth(1);
-  this->setStyleSheet("QFrame { background-color: black; }");
-  this->setFixedHeight(22);
+  //this->setFrameStyle(QFrame::Panel | QFrame::Raised);
+  //this->setLineWidth(1);
+  //this->setStyleSheet("QFrame { background-color: black; }");
+  //this->setFixedHeight(22);
+  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   trayID = 0;
   isRunning = false;
 }
@@ -35,7 +37,8 @@ void LSysTray::start(){
   
   //Get the appropriate atom for this screen
   QString str = QString("_NET_SYSTEM_TRAY_S%1").arg(DefaultScreen(disp));
-  Atom _NET_SYSTEM_TRAY_S = XInternAtom(disp,str.toAscii(),true);
+  qDebug() << "Default Screen Atom Name:" << str;
+  Atom _NET_SYSTEM_TRAY_S = XInternAtom(disp,str.toAscii(),false);
   //Make sure that there is no other system tray running
   if(XGetSelectionOwner(disp, _NET_SYSTEM_TRAY_S) != None){
     qWarning() << "An alternate system tray is currently in use";
@@ -51,9 +54,9 @@ void LSysTray::start(){
     return;
   }
   //Now register the orientation of the system tray
-  int horz = _NET_SYSTEM_TRAY_ORIENTATION_HORZ;
-  XChangeProperty(disp, trayID, XInternAtom(disp,"_NET_SYSTEM_TRAY_ORIENTATION",true),
-  	  	XA_CARDINAL, 32, PropModeReplace, (unsigned char*) &horz, 1);
+  //int horz = _NET_SYSTEM_TRAY_ORIENTATION_HORZ;
+  //XChangeProperty(disp, trayID, XInternAtom(disp,"_NET_SYSTEM_TRAY_ORIENTATION",true),
+  	  	//XA_CARDINAL, 32, PropModeReplace, (unsigned char*) &horz, 1);
   //Now get the visual ID for the system tray
   XVisualInfo *XVI = new XVisualInfo;
     XVI->screen = QX11Info::appScreen();
@@ -117,19 +120,19 @@ void LSysTray::parseX11Event(XEvent *event){
   //This public slot will be connected (indirectly) to the main application X filter system
   switch(event->type){
     case ClientMessage:
+    	//qDebug() << "SysTray: ClientMessage";
     	if(event->xany.window == trayID){
     	  parseClientMessageEvent(&(event->xclient));
     	}
     	break;
     case SelectionClear:
+    	//qDebug() << "SysTray: Selection Clear";
     	this->stop();
-    	break;
-    case DestroyNotify:
+    	//break;
+    //case DestroyNotify:
     	//This event happens every time the icon changes
     	// - let the container signal handle when the app truly closes
-    	break;
-    default:
-    	bool junk;
+    	
   }
   
 }
@@ -140,13 +143,13 @@ void LSysTray::parseX11Event(XEvent *event){
 // ========================
 void LSysTray::addTrayIcon(Window win){
   if(win == 0 || !isRunning){ return; }
-  qDebug() << "System Tray: Add Tray Icon:" << win;
+  //qDebug() << "System Tray: Add Tray Icon:" << win;
   bool exists = false;
   for(int i=0; i<trayIcons.length(); i++){
     if(trayIcons[i]->clientWinId() == win){ exists=true; break; }
   }
   if(!exists){
-    qDebug() << " - New Icon";
+    //qDebug() << " - New Icon";
     QX11EmbedContainer *cont = new QX11EmbedContainer(this);
       cont->setFixedSize(22,22);
     //Set the background on the client window

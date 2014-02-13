@@ -31,7 +31,7 @@
 #define SYSTEM_TRAY_CANCEL_MESSAGE 2
 
 
-class LSysTray : public QFrame{
+class LSysTray : public QWidget{
 	Q_OBJECT
 public:
 	LSysTray(QWidget *parent = 0);
