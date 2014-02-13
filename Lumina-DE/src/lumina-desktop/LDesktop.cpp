@@ -10,6 +10,7 @@ LDesktop::LDesktop(int deskNum) : QMainWindow(){
   this->setCentralWidget(new QWidget(this));
   this->setWindowFlags( Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
   this->setFocusPolicy(Qt::NoFocus);
+  this->setContextMenuPolicy(Qt::NoContextMenu);
   desktop = new QDesktopWidget();
   //Setup the internal variables
   settings = new QSettings(QSettings::UserScope, "LuminaDE","desktop"+QString::number(deskNum), this);

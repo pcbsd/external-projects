@@ -152,15 +152,15 @@ void LSysTray::addTrayIcon(Window win){
     //qDebug() << " - New Icon";
     QX11EmbedContainer *cont = new QX11EmbedContainer(this);
       cont->setFixedSize(22,22);
-    //Set the background on the client window
-    XSetWindowBackgroundPixmap(QX11Info::display(), win, None);
-    XSetWindowBackground(QX11Info::display(),win, None);
     //Now embed the client
     cont->embedClient(win);
     connect(cont,SIGNAL(clientIsEmbedded()),this,SLOT(updateStatus()) );
     connect(cont,SIGNAL(clientClosed()),this,SLOT(trayAppClosed()) );
     trayIcons << cont;
     layout->addWidget(cont);
+    //Set the background on the client window
+    //XReparentWindow(QX11Info::display(), win, cont->winId(), 0, 0);
+    XSetWindowBackgroundPixmap(QX11Info::display(), win, ParentRelative);
   }
 }
 
@@ -184,7 +184,14 @@ void LSysTray::parseClientMessageEvent(XClientMessageEvent *event){
 }
 
 void LSysTray::updateStatus(){
-  qDebug() << "System Tray: Client Attached"; 	
+  qDebug() << "System Tray: Client Attached";
+  //Make sure that each icon has the appropriate background color
+  /*for(int i=0;  i<trayIcons.length(); i++){
+    if(trayIcons[i]->clientWinId() != 0){
+      XSetWindowBackgroundPixmap(QX11Info::display(), trayIcons[i]->clientWinId(), ParentRelative);
+      XSetWindowBackground(QX11Info::display(), trayIcons[i]->clientWinId(), CopyFromParent);
+    }
+  }*/
 }
 
 void LSysTray::trayAppClosed(){
