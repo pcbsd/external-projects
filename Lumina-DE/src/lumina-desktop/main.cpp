@@ -14,6 +14,7 @@
 #include <QTextStream>
 #include <QDesktopWidget>
 #include <QSettings>
+#include <QList>
 
 #include "WMProcess.h"
 #include "Globals.h"
@@ -73,27 +74,20 @@ int main(int argc, char ** argv)
     qDebug() << " - Start Window Manager";
     WMProcess WM;
     WM.startWM();
+    QObject::connect(&WM, SIGNAL(WMShutdown()), &a, SLOT(closeAllWindows()) );
     //Now start the desktop
     qDebug() << " - Start Desktop";
     QDesktopWidget DW;
-    //for(int i=0; i<DW.screenCount(); i++){
-      LDesktop *w = new LDesktop();
-      //if( i==0 ){
-        QObject::connect(&WM, SIGNAL(WMShutdown()), &a, SLOT(closeAllWindows()) );
-      //}
-      //QObject::connect(w, SIGNAL(Finished()),&a,SLOT(closeAllWindows()) );
-      w->show();
-    //}
+    QList<LDesktop*> screens;
+    for(int i=0; i<DW.screenCount(); i++){
+      screens << new LDesktop(i);
+      screens[i]->show();
+    }
     a.processEvents();
-    int retCode = -1;
-    //try{
-      retCode = a.exec();
-    //}catch(...){
-      //qCritical() << "Desktop Crashed";    
-    //}
+    int retCode = a.exec();
     qDebug() << "Stopping the window manager";
     WM.stopWM();
-    logfile.close();
     qDebug() << "Finished Closing Down Lumina";
+    logfile.close();
     return retCode;
 }

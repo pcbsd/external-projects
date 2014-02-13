@@ -19,6 +19,7 @@
 #include <QSettings>
 #include <QFile>
 #include <QDebug>
+#include <QPoint>
 
 #include "Globals.h"
 #include "LClock.h"
@@ -56,9 +57,9 @@ private:
 private slots:
 	void SystemRun();
 	void UpdateBackground();
-	//void newXEvent(XEvent*);
+
+protected:
+	void moveEvent(QMoveEvent *event);
 	
-signals:
-	//void Finished();
 };
 #endif

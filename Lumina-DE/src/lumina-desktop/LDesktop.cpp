@@ -120,7 +120,12 @@ void LDesktop::UpdateBackground(){
   }
 }
 
-/*void LDesktop::newXEvent(XEvent* event){
-  this->move(0,0); //In case the WM does not keep it in the corner
-}*/
+// -----------------------
+//   PROTECTED FUNCTIONS
+// -----------------------
+void LDesktop::moveEvent(QMoveEvent *event){
+  if(event->pos() != QPoint(0,0)){
+    this->move(0,0); //In case the WM does not keep it in the corner
+  }
+}
 

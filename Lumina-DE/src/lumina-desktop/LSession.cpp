@@ -10,6 +10,7 @@ LSession::LSession(int &argc, char ** argv) : QApplication(argc, argv){
   this->setApplicationName("Lumina Desktop Environment");
   this->setApplicationVersion("0.0.1");
   this->setOrganizationName("LuminaDesktopEnvironment");
+  this->setQuitOnLastWindowClosed(false); //since the LDesktop's are not necessarily "window"s
 }
 
 LSession::~LSession(){
