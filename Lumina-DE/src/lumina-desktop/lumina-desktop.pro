@@ -25,7 +25,8 @@ HEADERS  += Globals.h \
 	LClock.h \
 	LSysTray.h \
 	LDeskBar.h \
-	LMixer.h
+	LMixer.h \ 
+	LTBWidget.h
 
 FORMS    += 
 

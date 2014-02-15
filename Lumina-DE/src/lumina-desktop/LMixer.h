@@ -19,7 +19,9 @@
 #include <LuminaUtils.h>
 #include <LuminaXDG.h>
 
-class LMixerWidget : public QToolButton{
+#include "LTBWidget.h"
+
+class LMixerWidget : public LTBWidget{
 	Q_OBJECT
 public:
 	LMixerWidget(QWidget *parent = 0);
@@ -31,7 +33,7 @@ public slots:
 private:
 	int CVOL;
 	bool isMuted;
-	QMenu *menu;
+	//QMenu *menu;
 	QSlider *slider;
 	QToolButton *mute;
 	QTimer *timer;
@@ -47,9 +49,10 @@ private slots:
 	void updateMixer();
 	void sliderChanged();
 	void muteClicked();
+	void wheelChanged(int delta);
 	
-protected:
-	void wheelEvent(QWheelEvent *event); //mouse wheel events
+//protected:
+	//void wheelEvent(QWheelEvent *event); //mouse wheel events
 	//void mouseReleaseEvent(QMouseEvent *event); //mouse release event (widget clicked)
 };
 #endif

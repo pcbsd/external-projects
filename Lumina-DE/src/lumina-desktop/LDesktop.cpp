@@ -52,7 +52,7 @@ void LDesktop::SetupToolbar(){
     userTB->setPopupMode(QToolButton::InstantPopup);
     
   deskbar = new LDeskBar(this);
-    deskbar->setHeight(22);
+    //deskbar->setHeight(22);
     deskbar->start();
   clock = new LClock(this);
     clock->start();

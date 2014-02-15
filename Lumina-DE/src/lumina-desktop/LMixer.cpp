@@ -6,13 +6,16 @@
 //===========================================
 #include "LMixer.h"
 
-LMixerWidget::LMixerWidget(QWidget *parent) : QToolButton(parent){
+LMixerWidget::LMixerWidget(QWidget *parent) : LTBWidget(parent){
   //this->setStyleSheet( "LMixerWidget { background-color: transparent; border: none; padding: none} LMixerWidget::menu-indicator{ image: none; }");
-  this->setPopupMode(QToolButton::InstantPopup);
-  this->setToolButtonStyle(Qt::ToolButtonIconOnly);
-  this->setAutoRaise(true);
-  this->setContentsMargins(0,0,0,0);
-  this->setFixedSize(22,22);
+  //this->setPopupMode(QToolButton::InstantPopup);
+  //this->setToolButtonStyle(Qt::ToolButtonIconOnly);
+  //this->setAutoRaise(true);
+  //this->setContentsMargins(0,0,0,0);
+  //this->setFixedSize(22,22);
+  connect(this, SIGNAL(clicked()), this, SLOT(showMenu()));
+  connect(this, SIGNAL(longClicked()), this, SLOT(showMenu()));
+  connect(this, SIGNAL(wheelScroll(int)), this, SLOT(wheelChanged(int)) );
 }
 
 LMixerWidget::~LMixerWidget(){
@@ -33,7 +36,7 @@ void LMixerWidget::start(){
     mute->setText(tr("Mute"));
   muteA = new QWidgetAction(this);
     muteA->setDefaultWidget(mute);
-  menu = new QMenu(this);
+  QMenu *menu = new QMenu(this);
     menu->addAction( sliderA );
     menu->addAction( muteA );
   this->setMenu(menu);
@@ -73,7 +76,7 @@ void LMixerWidget::updateIcon(){
   }else{
     this->setIcon( LXDG::findIcon("audio-volume-high", DID+"audio-volume-high.png") ); 
   }
-  this->setIconSize(QSize(20,20));
+  //this->setIconSize(QSize(20,20));
 }
 
 void LMixerWidget::setVolume(int vol){
@@ -133,17 +136,24 @@ void LMixerWidget::muteClicked(){
   updateIcon();
 }
 
+void LMixerWidget::wheelChanged(int delta){
+  delta = delta*3; //make 1 wheel click correspond to 3% volume change
+  if(isMuted && delta<=0){} //do nothing - already muted
+  else if(isMuted){ slider->setValue(delta); sliderChanged(); } //unmute
+  else{ slider->setValue( slider->value() + delta ); sliderChanged(); } //difference from current setting
+}
+
 // ======================
 //      PROTECTED
 // ======================
-void LMixerWidget::wheelEvent(QWheelEvent *event){
+/*void LMixerWidget::wheelEvent(QWheelEvent *event){
   //Change the current volume
   int change = event->delta()/40; // 3% volume change per 1/15th of a rotation (delta*3/120)
   if(isMuted && change<=0){} //do nothing - already muted
   else if(isMuted){ slider->setValue(change); sliderChanged(); } //unmute
   else{ slider->setValue( slider->value() + change ); sliderChanged(); } //difference from current setting
   event->accept();
-}
+}*/
 
 /*void LMixerWidget::mouseReleaseEvent(QMouseEvent *event){
   //Show the menu

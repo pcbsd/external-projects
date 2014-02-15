@@ -16,15 +16,6 @@ LDeskBar::LDeskBar(QWidget *parent) : QWidget(parent){
   audioFilter <<"*.ogg"<<"*.mp3"<<"*.wav"<<"*.aif"<<"*.iff"<<"*.m3u"<<"*.m4a"<<"*.mid"<<"*.mpa"<<"*.ra"<<"*.wma";
   videoFilter <<"*.3g2"<<"*.3gp"<<"*.asf"<<"*.asx"<<"*.avi"<<"*.flv"<<"*.m4v"<<"*.mov"<<"*.mp4"<<"*.mpg"<<"*.rm"<<"*.srt"<<"*.swf"<<"*.vob"<<"*.wmv";
   pictureFilter <<"*.bmp"<<"*.dds"<<"*.gif"<<"*.jpg"<<"*.png"<<"*.psd"<<"*.thm"<<"*.tif"<<"*.tiff"<<"*.ai"<<"*.eps"<<"*.ps"<<"*.svg"<<"*.ico";
-  //initialize the widget layout
-  layout = new QHBoxLayout();
-    layout->setContentsMargins(0,0,0,0);
-    layout->setSpacing(2);
-    layout->setAlignment(Qt::AlignCenter);
-  this->setLayout(layout);
-  //Setup the style sheet
-  QString style = "background-color: transparent;";
-  this->setStyleSheet(style);
   //initialize the desktop bar items
   initializeDesktop();
   //setup the directory watcher
@@ -32,8 +23,7 @@ LDeskBar::LDeskBar(QWidget *parent) : QWidget(parent){
   if(!desktopPath.isEmpty()){ 
     watcher->addPath(desktopPath); 
   }
-
-  
+ 
 }
 
 LDeskBar::~LDeskBar(){
@@ -45,27 +35,6 @@ LDeskBar::~LDeskBar(){
   
 }
 
-void LDeskBar::setHeight(int pix){
-  //Reset the height of the widget and all objects
-  this->resize(this->width(), pix);
-  //Now resize all the special buttons
-  QSize size(pix,pix);
-  homeB->setIconSize(size);
-  dirB->setIconSize(size);
-  audioB->setIconSize(size);
-  videoB->setIconSize(size);
-  pictureB->setIconSize(size);
-  fileB->setIconSize(size);
-  //Now resize all the other buttons
-  for(int i=0; i<exeList.length(); i++){
-    exeList[i]->setIconSize(size);
-    exeList[i]->defaultAction()->setIcon(QIcon(exeList[i]->defaultAction()->iconText()));
-    //re-load the item in the layout for the item to get properly resized
-    layout->removeWidget(exeList[i]);
-    layout->addWidget(exeList[i]);
-  }
-}
-
 void LDeskBar::start(){
   //Now update the desktop bar in a different thread
   QTimer::singleShot(1,this,SLOT(desktopChanged()) );
@@ -75,8 +44,13 @@ void LDeskBar::start(){
 //   PRIVATE FUNCTIONS
 // =======================
 void LDeskBar::initializeDesktop(){
+  layout = new QHBoxLayout();
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(2);
+    layout->setAlignment(Qt::AlignCenter);
+  this->setLayout(layout);
   //Home button (important directories in the home dir - only created this once)
-  homeB = new QToolButton(this);
+  /*homeB = new QToolButton(this);
     homeB->setPopupMode(QToolButton::InstantPopup);
     homeB->setDefaultAction(new QAction(QIcon(":/images/default-home.png"),"",this));
   homeM = new QMenu(this);
@@ -95,100 +69,59 @@ void LDeskBar::initializeDesktop(){
     }
     homeB->setMenu(homeM);
     layout->addWidget(homeB);
+    */
+  //Applications on the desktop
+  appB = new LTBWidget(this);
+    connect(appB, SIGNAL(clicked()), appB, SLOT(showMenu()) );
+    connect(appB, SIGNAL(longClicked()), appB, SLOT(showMenu()) ) ;
+    appB->setIcon( LXDG::findIcon("", ":/images/default-favorite.png") );
+  appM = new QMenu(this);
+    appB->setMenu(appM);
+    layout->addWidget(appB);
+    connect(appM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
   //Directories on the desktop
-  dirB = new QToolButton(this);
-    dirB->setPopupMode(QToolButton::InstantPopup);
-    dirB->setDefaultAction(new QAction(QIcon(":/images/default-dir.png"),"",this));
+  dirB = new LTBWidget(this);
+    connect(dirB, SIGNAL(clicked()), dirB, SLOT(showMenu()) );
+    connect(dirB, SIGNAL(longClicked()), dirB, SLOT(showMenu()) );
+    dirB->setIcon( LXDG::findIcon("", ":/images/default-dir.png") );
   dirM = new QMenu(this);
     dirB->setMenu(dirM);
     layout->addWidget(dirB);
     connect(dirM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
   //Audio Files on the desktop
-  audioB = new QToolButton(this);
-    audioB->setPopupMode(QToolButton::InstantPopup);
-    audioB->setDefaultAction(new QAction(QIcon(":/images/default-audiofile.png"),"",this));
-  audioM = new QMenu(this);
+  audioM = new QMenu(tr("Audio"), this);
     connect(audioM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    audioB->setMenu(audioM);
-    layout->addWidget(audioB);
+    audioM->setIcon( LXDG::findIcon("",":/images/default-audiofile.png") );
   //Video Files on the desktop
-  videoB = new QToolButton(this);
-    videoB->setPopupMode(QToolButton::InstantPopup);
-    videoB->setDefaultAction(new QAction(QIcon(":/images/default-video.png"),"",this));
-  videoM = new QMenu(this);
+  videoM = new QMenu(tr("Video"), this);
     connect(videoM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    videoB->setMenu(videoM);
-    layout->addWidget(videoB);
+    videoM->setIcon( LXDG::findIcon("",":/images/default-video.png") );
   //Picture Files on the desktop
-  pictureB = new QToolButton(this);
-    pictureB->setPopupMode(QToolButton::InstantPopup);
-    pictureB->setDefaultAction(new QAction(QIcon(":/images/default-image.png"),"",this));
-  pictureM = new QMenu(this);
+  pictureM = new QMenu(tr("Pictures"), this);
     connect(pictureM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    pictureB->setMenu(pictureM);
-    layout->addWidget(pictureB);
+    pictureM->setIcon( LXDG::findIcon("",":/images/default-graphicsfile.png") );
   //Other Files on the desktop
-  fileB = new QToolButton(this);
-    fileB->setPopupMode(QToolButton::InstantPopup);
-    fileB->setDefaultAction(new QAction(QIcon(":/images/default-file.png"),"",this));
+  otherM = new QMenu(tr("Other Files"), this);
+    connect(otherM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
+    otherM->setIcon( LXDG::findIcon("",":/images/default-file.png") );
+  //All Files Button
+  fileB = new LTBWidget(this);
+    connect(fileB, SIGNAL(clicked()), fileB, SLOT(showMenu()) );
+    connect(fileB, SIGNAL(longClicked()), fileB, SLOT(showMenu()) );
+    fileB->setIcon( LXDG::findIcon("", ":/images/default-file.png") );
   fileM = new QMenu(this);
-    connect(fileM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     fileB->setMenu(fileM);
     layout->addWidget(fileB);
 }
 
-bool LDeskBar::readDesktopFile(QString path, QString &name, QString &iconpath){
-  name.clear(); iconpath.clear();
-  QFile file(path);
-  QString locale = QLocale::system().name();
-  bool ok = false;
-  if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){ return ok; }
-  QTextStream in(&file);
-  QString tryexec; bool hidden=false;
-  while(!in.atEnd()){
-    QString line = in.readLine();
-    line = line.simplified();
-    QString var = line.section("=",0,0).simplified();
-    QString loc = var.section("[",1,1).section("]",0,0).simplified(); // localization
-    var = var.section("[",0,0).simplified(); //remove the localization
-    QString val = line.section("=",1,1).simplified();
-    //-------------------
-    if(var=="Name"){ 
-      if(name.isEmpty() && loc.isEmpty()){ name = val; }
-      else if(loc == locale){ name = val; }
-    }else if(var=="Icon"){ iconpath = val; }
-    else if(var=="TryExec"){ tryexec = val; }
-    else if(var=="NoDisplay" && !hidden){ hidden = (val.toLower()=="true"); }
-    else if(var=="Hidden" && !hidden){ hidden = (val.toLower()=="true"); }
-  }
-  file.close();
-  //Check the icon
-  if( iconpath.isEmpty() || !QFile::exists(iconpath) ){
-    iconpath = ":/images/default-application.png";	  
-  }
-  //Check for validity
-  ok=true;
-  if(hidden){ ok = false; }
-  else if(!tryexec.isEmpty()){
-    if(!tryexec.startsWith("/")){ ok = searchForExe(tryexec); }
-    else{ ok = QFile::exists(tryexec); }
-  }
-  return ok;
-}
-
 QAction* LDeskBar::newAction(QString filepath, QString name, QString iconpath){
-  QAction *act = new QAction(QIcon(iconpath), name, this);
-    act->setWhatsThis(filepath);
-    //act->setIconText(iconpath);
-  return act;
+  return newAction(filepath, name, QIcon(iconpath));
 }
 
-QToolButton* LDeskBar::newLauncher(QString filepath, QString name, QString iconpath){
-  QToolButton *tb = new QToolButton(this);
-    tb->setDefaultAction( newAction(filepath, "", iconpath) );
-    tb->setToolTip(name);
-    connect(tb, SIGNAL(triggered(QAction*)), this, SLOT(ActionTriggered(QAction*)) );
-  return tb;
+QAction* LDeskBar::newAction(QString filepath, QString name, QIcon icon){
+  QAction *act = new QAction(icon, name, this);
+    act->setWhatsThis(filepath);
+  return act;	 
 }
 
 void LDeskBar::updateMenu(QMenu* menu, QFileInfoList files, bool trim){
@@ -201,25 +134,12 @@ void LDeskBar::updateMenu(QMenu* menu, QFileInfoList files, bool trim){
   }
 }
 
-bool LDeskBar::searchForExe(QString filename){
-  if(filename.isEmpty()){ return false; }
-  QDir dir;
-  bool found = false;
-  QStringList paths = QString(getenv("PATH")).split(":");
-  for(int i=0; i<paths.length(); i++){
-    if(QFile::exists(paths[i]+"/"+filename)){ found = true; break; }
-  }
-  return found;
-}
-
 // =======================
 //     PRIVATE SLOTS
 // =======================
 void LDeskBar::ActionTriggered(QAction* act){
  //Open up the file with the appropriate application
  QString cmd = "lumina-open "+act->whatsThis();
- //
- 
  qDebug() << "Open File:" << cmd;
  QProcess::startDetached(cmd);
 }
@@ -235,38 +155,34 @@ void LDeskBar::desktopChanged(){
     updateMenu(pictureM, dir.entryInfoList( pictureFilter, QDir::Files, QDir::Name) );
     //Now update the launchers
     QFileInfoList exe = dir.entryInfoList( QStringList() << "*.desktop", QDir::Files, QDir::Name );
-      for(int i=0; i<exe.length(); i++){ totals.removeAll(exe[i]); } //remove these items from the totals
-    // - verify that the current launchers are still valid
-    for(int i=0; i<exeList.length(); i++){
-      bool remove=true;
-      QString junk1, junk2;
-      if(exe.removeAll( QFileInfo(exeList[i]->whatsThis())) > 0){
-      	//launcher still there - check validity
-      	remove = !readDesktopFile(exeList[i]->whatsThis(), junk1, junk2);
+      // - Get a complete list of apps (in alphabetical order)
+      QList<XDGDesktop> exeList;
+      for(int i=0; i<exe.length(); i++){
+      	totals.removeAll(exe[i]); //Remove this item from the totals
+      	bool ok = false;
+        XDGDesktop df = LXDG::loadDesktopFile(exe[i].canonicalFilePath(), ok);
+        if(ok){
+          if( LXDG::checkValidity(df) && !df.isHidden ){ exeList << df; }
+        }
       }
-      if(remove){
-        layout->removeWidget(exeList[i]);
-        delete exeList.takeAt(i);
+      exeList = LXDG::sortDesktopNames(exeList);
+      // - Now re-create the menu with the apps
+      appM->clear();
+      for(int i=0; i<exeList.length(); i++){
+        appM->addAction( newAction(exeList[i].filePath, exeList[i].name, LXDG::findIcon(exeList[i].icon, ":/images/default-application.png")) );
       }
-    }
-    //Now add any new launchers to the end
-    for(int i=0; i<exe.length(); i++){
-      QString name, iconpath;
-      if( readDesktopFile(exe[i].canonicalFilePath(), name, iconpath) ){
-        QToolButton *tb = newLauncher(exe[i].canonicalFilePath(), name, iconpath);
-        exeList << tb;
-        layout->addWidget(tb);
-      }
-    }
-    //Now update the files menu with everything else that is left
-    updateMenu(fileM, totals, false);
+    //Now update the other menu with everything else that is left
+    updateMenu(otherM, totals, false);
+    //Now update the file menu as appropriate
+    fileM->clear();
+    if(!audioM->isEmpty()){ fileM->addMenu(audioM); }
+    if(!pictureM->isEmpty()){ fileM->addMenu(pictureM); }
+    if(!videoM->isEmpty()){ fileM->addMenu(videoM); }
+    if(!otherM->isEmpty()){ fileM->addMenu(otherM); }
   }	
-  //Setup the visibility of the special items
-  homeB->setVisible( !homeM->isEmpty() );
+  //Setup the visibility of the buttons
+  appB->setVisible( !appM->isEmpty() );
   dirB->setVisible( !dirM->isEmpty() );
-  audioB->setVisible( !audioM->isEmpty() );
-  videoB->setVisible( !videoM->isEmpty() );
-  pictureB->setVisible( !pictureM->isEmpty() );
   fileB->setVisible( !fileM->isEmpty() );
   //Clear the totals list (since no longer in use)
   totals.clear();
