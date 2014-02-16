@@ -54,6 +54,10 @@ QString WMProcess::setupWM(){
       QFile::copy(":/openboxconf/lumina-rc.xml",confDir+"/lumina-rc.xml");
       QFile::setPermissions(confDir+"/lumina-rc.xml", QFile::ReadOwner | QFile::WriteOwner | QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup);
     }
+    if(!QFile::exists(confDir+"lumina-menu.xml")){
+      QFile::copy(":/openboxconf/lumina-menu.xml",confDir+"/lumina-menu.xml");
+      QFile::setPermissions(confDir+"/lumina-menu.xml", QFile::ReadOwner | QFile::WriteOwner | QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup);
+    }
     //Now copy the configuration files around as necessary
     //if(QFile::exists(confDir+"/rc.xml")){ QFile::rename(confDir+"/rc.xml",confDir+"/openbox-rc.xml"); }
     //QFile::copy(confDir+"/lumina-rc.xml",confDir+"/rc.xml");

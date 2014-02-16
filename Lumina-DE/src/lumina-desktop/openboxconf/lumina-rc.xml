@@ -4,7 +4,7 @@
 <openbox_config xmlns="http://openbox.org/3.4/rc">
   <resistance>
     <strength>10</strength>
-    <screen_edge_strength>20</screen_edge_strength>
+    <screen_edge_strength>300</screen_edge_strength>
   </resistance>
   <focus>
     <focusNew>yes</focusNew>
@@ -108,10 +108,8 @@
     <number>2</number>
     <firstdesk>1</firstdesk>
     <names>
-      <!-- set names up here if you want to, like this:
-    <name>desktop 1</name>
-    <name>desktop 2</name>
-    -->
+      <name>Desktop 1</name>
+      <name>Desktop 2</name>
     </names>
     <popupTime>875</popupTime>
     <!-- The number of milliseconds to show the popup for when switching
@@ -138,7 +136,7 @@
      Many programs reserve space automatically, but you can use this in other
      cases. -->
   <margins>
-    <top>22</top>
+    <top>24</top>
     <bottom>0</bottom>
     <left>0</left>
     <right>0</right>
@@ -275,30 +273,8 @@
         <command>pcmanfm</command>
       </action>
     </keybind>
-    <!--keybindings for LXPanel -->
-    <keybind key="W-r">
-      <action name="Execute">
-        <command>lxpanelctl run</command>
-      </action>
-    </keybind>
-    <keybind key="A-F2">
-      <action name="Execute">
-        <command>lxpanelctl run</command>
-      </action>
-    </keybind>
-    <keybind key="C-Escape">
-      <action name="Execute">
-        <command>lxpanelctl menu</command>
-      </action>
-    </keybind>
     <keybind key="F11">
       <action name="ToggleFullscreen"/>
-    </keybind>
-    <!-- Launch Task Manager with Ctrl+Alt+Del -->
-    <keybind key="A-C-Delete">
-      <action name="Execute">
-        <command>lxtask</command>
-      </action>
     </keybind>
   </keyboard>
   <mouse>
@@ -637,7 +613,7 @@
     <!-- You can specify more than one menu file in here and they are all loaded,
        just don't make menu ids clash or, well, it'll be kind of pointless -->
     <!-- default menu file (or custom one in $HOME/.config/openbox/) -->
-    <!--file>/usr/local/share/lxde/openbox/menu.xml</file-->
+    <file>lumina-menu.xml</file>
     <hideDelay>200</hideDelay>
     <!-- if a press-release lasts longer than this setting (in milliseconds), the
        menu is hidden again -->
@@ -652,6 +628,17 @@
     <!-- show the manage desktops section in the client-list-(combined-)menu -->
   </menu>
   <applications>
+    <application name="LuminaDesktopPanel">
+      <position>
+        <x>0</x>
+        <y>0</y>
+      </position>
+      <focus>yes</focus>
+      <desktop>all</desktop>
+      <skip_pager>yes</skip_pager>
+      <skip_taskbar>yes</skip_taskbar>
+    </application>
+      
     <!--
   # this is an example with comments through out. use these to make your
   # own rules, but without the comments of course.

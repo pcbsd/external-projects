@@ -11,6 +11,7 @@ LDesktop::LDesktop(int deskNum) : QMainWindow(){
   this->setWindowFlags( Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
   this->setFocusPolicy(Qt::NoFocus);
   this->setContextMenuPolicy(Qt::NoContextMenu);
+  this->setWindowTitle("LuminaDesktopPanel");
   desktop = new QDesktopWidget();
   //Setup the internal variables
   settings = new QSettings(QSettings::UserScope, "LuminaDE","desktop"+QString::number(deskNum), this);
