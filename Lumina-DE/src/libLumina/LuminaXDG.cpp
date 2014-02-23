@@ -241,6 +241,7 @@ void LXDG::setEnvironmentVars(){
 QIcon LXDG::findIcon(QString iconName, QString fallback){
   //Check if the icon is an absolute path and exists
   if(QFile::exists(iconName) && iconName.startsWith("/")){ return QIcon(iconName); }
+  else if(iconName.startsWith("/")){ iconName.section("/",-1); } //Invalid absolute path, just looks for the icon
   //Check if the icon is actually given
   if(iconName.isEmpty()){ return QIcon(fallback); }
   //Now try to find the icon from the theme
@@ -265,7 +266,16 @@ QIcon LXDG::findIcon(QString iconName, QString fallback){
   if(cTheme.isEmpty()){ QIcon::setThemeName("hicolor"); } //set the XDG default theme
   if(DEBUG){ qDebug() << "[LXDG] Current theme:" << cTheme; }
   //Try to load the icon from the current theme
-  QIcon ico = QIcon::fromTheme(iconName);	  
+  QIcon ico = QIcon::fromTheme(iconName);
+  //Try to load the icon from /usr/local/share/pixmaps
+  if( ico.isNull() ){
+    qDebug() << "Could not find icon:" << iconName;
+    QDir base("/usr/local/share/pixmaps");
+    QStringList matches = base.entryList(QStringList() << "*"+iconName+"*", QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+    if( !matches.isEmpty() ){
+      ico = QIcon("/usr/local/share/pixmaps/"+matches[0]); //just use the first match
+    }
+  }
   //Use the fallback icon if necessary
   if(ico.isNull()){
     ico = QIcon(fallback);	  
