@@ -25,6 +25,7 @@
 #include "LClock.h"
 #include "LDeskBar.h"
 #include "LMixer.h"
+#include "AppMenu.h"
 #include "LSysTray.h" //must come last due to X library calls
 
 class LDesktop : public QMainWindow{
@@ -43,6 +44,7 @@ private:
 	QTimer *bgtimer;
 	QDesktopWidget *desktop;
 	QToolBar *toolBar;
+	AppMenu *appmenu;
 	
 	//ToolBar widgets
 	QToolButton *userTB;

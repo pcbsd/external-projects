@@ -40,7 +40,10 @@ LDesktop::~LDesktop(){
 // =====================
 void LDesktop::SetupToolbar(){
   //Create the User Button
+  appmenu = new AppMenu(this);
+  
   sysmenu = new QMenu(this);
+    sysmenu->addMenu(appmenu);
     sysmenu->addAction( QIcon(":/images/default-application.png"), tr("Run..."),this,SLOT(SystemRun()) );
     sysmenu->addAction( QIcon(":/images/default-logout.png"),tr("Logout"),this,SLOT(SystemLogout()) );
     sysmenu->addAction( QIcon(":/images/default-restart.png"),tr("Restart"),this,SLOT(SystemRestart()) );
@@ -51,6 +54,7 @@ void LDesktop::SetupToolbar(){
     userTB->setIcon(QIcon(":/images/default-user.png"));
     userTB->setMenu(sysmenu);
     userTB->setPopupMode(QToolButton::InstantPopup);
+
     
   deskbar = new LDeskBar(this);
     //deskbar->setHeight(22);
