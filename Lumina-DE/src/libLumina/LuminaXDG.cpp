@@ -256,7 +256,7 @@ QIcon LXDG::findIcon(QString iconName, QString fallback){
     for(int i=0; i<xdd.length(); i++){
       paths << xdd[i]+"/icons";	    
     }
-    paths << "/usr/share/pixmaps";
+    paths << "/usr/local/share/pixmaps";
     QIcon::setThemeSearchPaths(paths);
   }
   if(DEBUG){ qDebug() << "[LXDG] Icon search paths:" << paths; }
