@@ -61,10 +61,10 @@ void AppMenu::watcherUpdate(){
 }
 
 void AppMenu::launchStore(){
-  QProcess::execute("lumina-open \""+appstorelink+"\"");
+  QProcess::startDetached("lumina-open \""+appstorelink+"\"");
 }
 
 void AppMenu::launchApp(QAction *act){
   QString appFile = act->whatsThis();
-  QProcess::execute("lumina-open \""+appFile+"\"");
+  QProcess::startDetached("lumina-open \""+appFile+"\"");
 }
