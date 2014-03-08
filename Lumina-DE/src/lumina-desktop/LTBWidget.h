@@ -41,6 +41,7 @@ signals:
 public:
 	LTBWidget(QWidget* parent) : QWidget(parent){
 	  this->setContentsMargins(0,0,0,0);
+	  cstate = IDLE;
 	  ICON = new QLabel(this);
 	    ICON->setScaledContents(true);
 	  TEXT = new QLabel(this);
@@ -54,6 +55,7 @@ public:
 	  this->setLayout(layout);
 	  timedown = new QTimer(this);
 		timedown->setSingleShot(true);
+		timedown->setInterval(750); // 3/4 of a second default
 		QObject::connect(timedown, SIGNAL(timeout()), this, SIGNAL(longClicked()) );
 	}
 	~LTBWidget(){ 
@@ -69,7 +71,7 @@ public:
 	}
 	
 public slots:
-	void showMenu(){ menu->popup( this->pos()); }
+	void showMenu(){ menu->popup( this->mapToGlobal(pos()) ); }
 	void setIcon(QIcon icon){
 	  if(icon.isNull()){ ICON->setVisible(false); }
 	  else{

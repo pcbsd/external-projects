@@ -3,5 +3,5 @@ Exec=/usr/local/bin/Lumina-DE
 TryExec=/usr/local/bin/Lumina-DE
 Icon=/usr/local/share/pixmaps/Lumina-DE.png
 Type=Application
-Name=Lumina DE
+Name=Lumina
 Comment=A lightweight desktop environment

@@ -63,8 +63,6 @@ void LDesktop::SetupToolbar(){
     clock->start();
   systray = new LSysTray(this);
     systray->start();
-  mixer = new LMixerWidget(this);
-    QTimer::singleShot(0,mixer,SLOT(start())); //don't wait for it to finish starting
   
   QWidget *spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -74,7 +72,6 @@ void LDesktop::SetupToolbar(){
   toolBar->addWidget(deskbar);
   toolBar->addWidget(spacer);
   toolBar->addWidget(systray);
-  toolBar->addWidget(mixer);
   toolBar->addWidget(clock);
 
 }

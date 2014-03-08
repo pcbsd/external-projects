@@ -24,7 +24,6 @@
 #include "Globals.h"
 #include "LClock.h"
 #include "LDeskBar.h"
-#include "LMixer.h"
 #include "AppMenu.h"
 #include "LSysTray.h" //must come last due to X library calls
 
@@ -52,7 +51,6 @@ private:
 	LClock *clock;
 	QMenu *sysmenu;
 	LDeskBar *deskbar;
-	LMixerWidget *mixer;
 	
 	void SetupToolbar();
 	
