@@ -58,11 +58,14 @@ public:
 		timedown->setInterval(750); // 3/4 of a second default
 		QObject::connect(timedown, SIGNAL(timeout()), this, SIGNAL(longClicked()) );
 	}
+	
 	~LTBWidget(){ 
 	}
 	
 	void setMenu(QMenu *addmenu){ menu = addmenu; }
+	
 	void setLongClickTime( int ms ){ timedown->setInterval(ms); }
+	
 	void setState(STATES newstate){
 	  if(newstate == NOTIFICATION){ pstate = cstate; }
 	  else{ pstate = IDLE; }
@@ -72,6 +75,7 @@ public:
 	
 public slots:
 	void showMenu(){ menu->popup( this->mapToGlobal(pos()) ); }
+	
 	void setIcon(QIcon icon){
 	  if(icon.isNull()){ ICON->setVisible(false); }
 	  else{
@@ -79,6 +83,7 @@ public slots:
 	    ICON->setVisible(true);
 	  }
 	}
+	
 	void setText(QString text){
 	  if(text.isEmpty()){ TEXT->setVisible(false); }
 	  else{

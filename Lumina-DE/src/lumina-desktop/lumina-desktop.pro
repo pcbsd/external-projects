@@ -14,7 +14,8 @@ SOURCES += main.cpp \
 	LClock.cpp \
 	LSysTray.cpp \
 	LDeskBar.cpp \
-	AppMenu.cpp
+	AppMenu.cpp \
+	LUserButton.cpp
 	
 
 
@@ -26,7 +27,8 @@ HEADERS  += Globals.h \
 	LSysTray.h \
 	LDeskBar.h \
 	LTBWidget.h \
-	AppMenu.h
+	AppMenu.h \
+	LUserButton.h
 
 FORMS    += 
 
