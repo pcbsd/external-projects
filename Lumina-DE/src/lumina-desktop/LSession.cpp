@@ -21,33 +21,40 @@ LSession::~LSession(){
 }
 
 bool LSession::x11EventFilter(XEvent *event){
-  //Make sure the system tray can process the event
-  // --- SYSTEM TRAY EVENTS ---
+  //Detect X Event types and send the appropriate signal(s)
    switch(event->type){
+  // -------------------------
     case ClientMessage:
-    	//qDebug() << "SysTray: ClientMessage";
+    	//Only check if the client is the system tray, otherwise ignore
     	if(event->xany.window == LuminaSessionTrayID){
+    	  //qDebug() << "SysTray: ClientMessage";
     	  parseClientMessageEvent(&(event->xclient));
     	}
     	break;
     case SelectionClear:
-    	//qDebug() << "SysTray: Selection Clear";
-    	this->CloseSystemTray();
-    	//break;
-    //case DestroyNotify:
-    	//This event happens every time the icon changes
-    	// - let the container signal handle when the app truly closes
+    	if(event->xany.window == LuminaSessionTrayID){
+    	  //qDebug() << "SysTray: Selection Clear";
+    	  this->CloseSystemTray();
+    	}
+    	break;
+    case MapNotify:      //window mapped (visible)
+    case UnmapNotify:    //window unmapped (invisible)
+    //case VisibilityNotify: //window subsection visibility changed
+    case ReparentNotify: //window re-parented
+    case DestroyNotify:  //window destroyed
+    case CreateNotify:   //window created
+    	emit WindowListEvent();
     	
   }
   // -----------------------
 
-  //Make sure the window list can process the event
-  emit WindowListEvent(event);
-  //Now continue on with the event handling
+  //Now continue on with the event handling (don't change it)
   return false;
 }
 
-
+//=================
+//   SYSTEM TRAY
+//=================
 bool LSession::StartupSystemTray(){
   qDebug() << "Starting System Tray";
   //Setup the freedesktop standards compliance
@@ -138,4 +145,76 @@ void LSession::parseClientMessageEvent(XClientMessageEvent *event){
     	//Unknown system tray operation code
     	opcode=1; //junk operation for compiling purposes*/
   }
+}
+
+//============================
+//   WINDOW LIST OPERATIONS
+//============================
+QList<WId> LSession::WindowList(WId root){
+  QList<WId> output;
+  if(root == 0){ root = QX11Info::appRootWindow(); }
+  Atom a = XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", true);
+  Atom realType;
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  int status = XGetWindowProperty(QX11Info::display(), root, a, 0L, (~0L),
+  	     false, AnyPropertyType, &realType, &format, &num, &bytes, &data);
+  if( (status >= Success) && (num > 0) ){
+    Q_ASSERT(format == 32);
+    quint32 *array = (quint32*) data;
+    for(quint32 i=0; i<num; i++){
+      output << (Window) array[i];
+    }
+    XFree(data);
+  }
+  return output;
+}
+
+void LSession::CloseWindow(WId win){
+XClientMessageEvent msg;
+    msg.type = ClientMessage;
+    msg.window = win;
+    msg.message_type = XInternAtom(QX11Info::display(),"_NET_CLOSE_WINDOW",true);
+    msg.format = 32;
+    msg.data.l[0] = CurrentTime;
+    msg.data.l[1] = 2; //Direct user interaction
+    msg.data.l[2] = 0;
+    msg.data.l[3] = 0;
+    msg.data.l[4] = 0;
+  XSendEvent(QX11Info::display(), QX11Info::appRootWindow(), False, StructureNotifyMask, (XEvent*)&msg);		
+}
+
+QString LSession::WindowName(WId win){
+  return LSession::getNetWMProp(win, "_NET_WM_NAME");
+}
+
+QString LSession::WindowVisibleName(WId win){
+  return LSession::getNetWMProp(win, "_NET_WM_VISIBLE_NAME");	
+}
+
+QString LSession::WindowIconName(WId win){
+  return LSession::getNetWMProp(win, "_NET_WM_ICON_NAME");	
+}
+
+QString LSession::WindowVisibleIconName(WId win){
+  return LSession::getNetWMProp(win, "_NET_WM_VISIBLE_ICON_NAME");	
+}
+
+QString LSession::getNetWMProp(WId win, QString prop){
+  Display *disp = QX11Info::display();
+  Atom NA = XInternAtom(disp, prop.toUtf8(), false);
+  Atom utf = XInternAtom(disp, "UTF8_STRING", false);
+  Atom type;
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  int status = XGetWindowProperty( disp, win, NA, 0, 65536, false, utf,
+  	  			&type, &format, &num, &bytes, &data);
+  QString property;
+  if(status >= Success && data){
+    property = QString::fromUtf8( (char *) data);
+    XFree(data);
+  }
+  return property;
 }
