@@ -46,7 +46,7 @@ public:
 	static QString WindowVisibleName(WId);
 	static QString WindowIconName(WId);
 	static QString WindowVisibleIconName(WId);
-	
+	static bool WindowRequiresAttention(WId);
 
 	static QString getNetWMProp(WId win, QString prop);
 	

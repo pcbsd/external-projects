@@ -201,6 +201,29 @@ QString LSession::WindowVisibleIconName(WId win){
   return LSession::getNetWMProp(win, "_NET_WM_VISIBLE_ICON_NAME");	
 }
 
+bool LSession::WindowRequiresAttention(WId win){
+  Display *disp = QX11Info::display();
+  Atom SA = XInternAtom(disp, "_NET_WM_STATE", false);
+  Atom LookFor = XInternAtom(disp, "NET_WM_STATE_DEMANDS_ATTENTION", false);
+  Atom type;
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  int status = XGetWindowProperty( disp, win, SA, 0, ~(0L), false, AnyPropertyType,
+  	  			&type, &format, &num, &bytes, &data);
+  bool attention = false;
+  if(status >= Success && data){
+    for(unsigned int i=0; i<num; i++){
+      if(data[i] == LookFor){
+      	attention = true;
+      	break;
+      }
+    }
+    XFree(data);
+  }
+  return attention;  	
+}
+
 QString LSession::getNetWMProp(WId win, QString prop){
   Display *disp = QX11Info::display();
   Atom NA = XInternAtom(disp, prop.toUtf8(), false);
