@@ -16,11 +16,11 @@ LUserButton::LUserButton(QWidget *parent) : LTBWidget(parent){
   //Setup the button icon/text
   this->setIcon( LXDG::findIcon("user-identity", ":/images/default-user.png") );
   this->setText( SYSTEM::user() );
-  this->setMenu(mainMenu);
+  //this->setMenu(mainMenu);
 	
   //Setup the signals/slots
   connect(this, SIGNAL(clicked()), this, SLOT(buttonClicked()) );
-  connect(this, SIGNAL(longClicked()), this, SLOT(buttonClicked()) );
+  //connect(this, SIGNAL(longClicked()), this, SLOT(buttonClicked()) );
   connect(mainMenu, SIGNAL(triggered(QAction*)), this, SLOT(menuButtonClicked(QAction*)) );
 }
 

@@ -7,7 +7,7 @@
 #ifndef _LUMINA_TOOLBAR_WIDGET_H
 #define _LUMINA_TOOLBAR_WIDGET_H
 
-#include <QLabel>
+#include <QToolButton>
 #include <QTimer>
 #include <QMenu>
 #include <QMouseEvent>
@@ -18,12 +18,12 @@
 
 enum STATES {IDLE, ACTIVE, INACTIVE, NOTIFICATION};
 
-class LTBWidget : public QWidget{
+class LTBWidget : public QToolButton{
 	Q_OBJECT
 private:
-	QTimer *timedown;
-	QMenu *menu;
-	QLabel *ICON, *TEXT;
+	//QTimer *timedown;
+	//QMenu *menu;
+	//QLabel *ICON, *TEXT;
 	STATES cstate, pstate;
 
 	void updateBackground(){
@@ -34,37 +34,40 @@ private:
 	}
 	
 signals:
-	void clicked();
-	void longClicked();
+	//void clicked();
+	//void longClicked();
 	void wheelScroll(int change);
 	
 public:
-	LTBWidget(QWidget* parent) : QWidget(parent){
-	  this->setContentsMargins(0,0,0,0);
+	LTBWidget(QWidget* parent) : QToolButton(parent){
+	  //this->setContentsMargins(0,0,0,0);
 	  cstate = IDLE;
-	  ICON = new QLabel(this);
-	    ICON->setScaledContents(true);
-	  TEXT = new QLabel(this);
-	    TEXT->setWordWrap(true);
-	  QHBoxLayout *layout = new QHBoxLayout(this);
-	    layout->setContentsMargins(0,0,0,0);
-	    layout->addWidget(ICON);
-	    layout->addWidget(TEXT);
-	    ICON->setVisible(false);
-	    TEXT->setVisible(false);
-	  this->setLayout(layout);
-	  timedown = new QTimer(this);
-		timedown->setSingleShot(true);
-		timedown->setInterval(750); // 3/4 of a second default
-		QObject::connect(timedown, SIGNAL(timeout()), this, SIGNAL(longClicked()) );
+	  this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	  this->setPopupMode(QToolButton::InstantPopup);
+	  this->setAutoRaise(true);
+	  //ICON = new QLabel(this);
+	    //ICON->setScaledContents(true);
+	  //TEXT = new QLabel(this);
+	    //TEXT->setWordWrap(true);
+	  //QHBoxLayout *layout = new QHBoxLayout(this);
+	    //layout->setContentsMargins(0,0,0,0);
+	    //layout->addWidget(ICON);
+	    //layout->addWidget(TEXT);
+	    //ICON->setVisible(false);
+	    //TEXT->setVisible(false);
+	  //this->setLayout(layout);
+	  //timedown = new QTimer(this);
+		//timedown->setSingleShot(true);
+		//timedown->setInterval(750); // 3/4 of a second default
+		//QObject::connect(timedown, SIGNAL(timeout()), this, SIGNAL(longClicked()) );
 	}
 	
 	~LTBWidget(){ 
 	}
 	
-	void setMenu(QMenu *addmenu){ menu = addmenu; }
+	//void setMenu(QMenu *addmenu){ menu = addmenu; }
 	
-	void setLongClickTime( int ms ){ timedown->setInterval(ms); }
+	//void setLongClickTime( int ms ){ timedown->setInterval(ms); }
 	
 	void setState(STATES newstate){
 	  if(newstate == NOTIFICATION){ pstate = cstate; }
@@ -74,9 +77,9 @@ public:
 	}
 	
 public slots:
-	void showMenu(){ menu->popup( this->mapToGlobal(pos()) ); }
+	//void showMenu(){ menu->popup( this->mapToGlobal(pos()) ); }
 	
-	void setIcon(QIcon icon){
+	/*void setIcon(QIcon icon){
 	  if(icon.isNull()){ ICON->setVisible(false); }
 	  else{
 	    ICON->setPixmap(icon.pixmap(this->height()));
@@ -90,11 +93,11 @@ public slots:
 	    TEXT->setText(text);
 	    TEXT->setVisible(true);
 	  }
-	}
+	}*/
 	
 
 protected:
-	void mousePressEvent(QMouseEvent *event){ 
+	/*void mousePressEvent(QMouseEvent *event){ 
 		timedown->start(); 
 		event->accept();
 	}
@@ -102,12 +105,12 @@ protected:
 		if(timedown->isActive()){ emit clicked(); }
 		timedown->stop(); 
 		event->accept();
-	}
+	}*/
 	void wheelEvent(QWheelEvent *event){
 	  int change = event->delta()/120; // 1/15th of a rotation (delta/120) is usually one "click" of the wheel
 	  emit wheelScroll(change);
 	}
-	void enterEvent(QEvent *event){
+	/*void enterEvent(QEvent *event){
 	  if(cstate == NOTIFICATION){ cstate = pstate; } //return to non-notification state
 	  if(cstate == IDLE){ this->setBackgroundRole(QPalette::Highlight); }
 	  event->accept();	
@@ -115,7 +118,7 @@ protected:
 	void exitEvent(QEvent *event){
 	  updateBackground();
 	  event->accept();
-	}
+	}*/
 };
 
 #endif

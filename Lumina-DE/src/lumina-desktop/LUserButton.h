@@ -33,7 +33,7 @@ private:
 private slots:
 	void buttonClicked(){
 	  UpdateMenu();
-	  this->showMenu();
+	  mainMenu->popup(this->mapToGlobal(QPoint(0,this->height())) );
 	}
 	
 	void menuButtonClicked(QAction *act){

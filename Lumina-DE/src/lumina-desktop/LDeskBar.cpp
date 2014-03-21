@@ -8,6 +8,7 @@
 
 LDeskBar::LDeskBar(QWidget *parent) : QWidget(parent){
   this->setObjectName("desktoptoolbar");
+  this->setContentsMargins(0,0,0,0);
   //Find the path to the desktop folder
   if(QFile::exists(QDir::homePath()+"/Desktop")){ desktopPath = QDir::homePath()+"/Desktop"; }
   else if(QFile::exists(QDir::homePath()+"/desktop")){ desktopPath = QDir::homePath()+"/desktop"; }
@@ -72,18 +73,18 @@ void LDeskBar::initializeDesktop(){
     */
   //Applications on the desktop
   appB = new LTBWidget(this);
-    connect(appB, SIGNAL(clicked()), appB, SLOT(showMenu()) );
-    connect(appB, SIGNAL(longClicked()), appB, SLOT(showMenu()) ) ;
-    appB->setIcon( LXDG::findIcon("", ":/images/default-favorite.png") );
+    //connect(appB, SIGNAL(clicked()), appB, SLOT(showMenu()) );
+    //connect(appB, SIGNAL(longClicked()), appB, SLOT(showMenu()) ) ;
+    appB->setIcon( LXDG::findIcon("favorites", ":/images/default-favorite.png") );
   appM = new QMenu(this);
     appB->setMenu(appM);
     layout->addWidget(appB);
     connect(appM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
   //Directories on the desktop
   dirB = new LTBWidget(this);
-    connect(dirB, SIGNAL(clicked()), dirB, SLOT(showMenu()) );
-    connect(dirB, SIGNAL(longClicked()), dirB, SLOT(showMenu()) );
-    dirB->setIcon( LXDG::findIcon("", ":/images/default-dir.png") );
+    //connect(dirB, SIGNAL(clicked()), dirB, SLOT(showMenu()) );
+    //connect(dirB, SIGNAL(longClicked()), dirB, SLOT(showMenu()) );
+    dirB->setIcon( LXDG::findIcon("folder", ":/images/default-dir.png") );
   dirM = new QMenu(this);
     dirB->setMenu(dirM);
     layout->addWidget(dirB);
@@ -91,24 +92,24 @@ void LDeskBar::initializeDesktop(){
   //Audio Files on the desktop
   audioM = new QMenu(tr("Audio"), this);
     connect(audioM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    audioM->setIcon( LXDG::findIcon("",":/images/default-audiofile.png") );
+    audioM->setIcon( LXDG::findIcon("audio-x-generic",":/images/default-audiofile.png") );
   //Video Files on the desktop
   videoM = new QMenu(tr("Video"), this);
     connect(videoM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    videoM->setIcon( LXDG::findIcon("",":/images/default-video.png") );
+    videoM->setIcon( LXDG::findIcon("video-x-generic",":/images/default-video.png") );
   //Picture Files on the desktop
   pictureM = new QMenu(tr("Pictures"), this);
     connect(pictureM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    pictureM->setIcon( LXDG::findIcon("",":/images/default-graphicsfile.png") );
+    pictureM->setIcon( LXDG::findIcon("image-x-generic",":/images/default-graphicsfile.png") );
   //Other Files on the desktop
   otherM = new QMenu(tr("Other Files"), this);
     connect(otherM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    otherM->setIcon( LXDG::findIcon("",":/images/default-file.png") );
+    otherM->setIcon( LXDG::findIcon("unknown",":/images/default-file.png") );
   //All Files Button
   fileB = new LTBWidget(this);
-    connect(fileB, SIGNAL(clicked()), fileB, SLOT(showMenu()) );
-    connect(fileB, SIGNAL(longClicked()), fileB, SLOT(showMenu()) );
-    fileB->setIcon( LXDG::findIcon("", ":/images/default-file.png") );
+    //connect(fileB, SIGNAL(clicked()), fileB, SLOT(showMenu()) );
+    //connect(fileB, SIGNAL(longClicked()), fileB, SLOT(showMenu()) );
+    fileB->setIcon( LXDG::findIcon("user-desktop", ":/images/default-file.png") );
   fileM = new QMenu(this);
     fileB->setMenu(fileM);
     layout->addWidget(fileB);
@@ -179,6 +180,15 @@ void LDeskBar::desktopChanged(){
     if(!pictureM->isEmpty()){ fileM->addMenu(pictureM); }
     if(!videoM->isEmpty()){ fileM->addMenu(videoM); }
     if(!otherM->isEmpty()){ fileM->addMenu(otherM); }
+    //Check for a single submenu, and skip the main if need be
+    if(fileM->actions().length()==1){
+      if(!audioM->isEmpty()){ fileB->setMenu(audioM); }
+      else if(!pictureM->isEmpty()){ fileB->setMenu(pictureM); }
+      else if(!videoM->isEmpty()){ fileB->setMenu(videoM); }
+      else if(!otherM->isEmpty()){ fileB->setMenu(otherM); }
+    }else{
+      fileB->setMenu(fileM);	    
+    }
   }	
   //Setup the visibility of the buttons
   appB->setVisible( !appM->isEmpty() );
