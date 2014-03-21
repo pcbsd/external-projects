@@ -263,7 +263,7 @@ QIcon LXDG::findIcon(QString iconName, QString fallback){
   if(DEBUG){ qDebug() << "[LXDG] Icon search paths:" << paths; }
   //Finding an icon from the current theme is already built into Qt, just use it
   QString cTheme = QIcon::themeName();
-  if(cTheme.isEmpty()){ QIcon::setThemeName("hicolor"); } //set the XDG default theme
+  if(cTheme.isEmpty()){ QIcon::setThemeName("oxygen"); } //set the XDG default theme
   if(DEBUG){ qDebug() << "[LXDG] Current theme:" << cTheme; }
   //Try to load the icon from the current theme
   QIcon ico = QIcon::fromTheme(iconName);
