@@ -41,6 +41,7 @@ LDesktop::~LDesktop(){
 void LDesktop::SetupToolbar(){
   //Create the User Button
   userTB = new LUserButton(this);
+  toolBar->addWidget(userTB);
   //appmenu = new AppMenu(this);
   /*
   sysmenu = new QMenu(this);
@@ -57,8 +58,7 @@ void LDesktop::SetupToolbar(){
     userTB->setPopupMode(QToolButton::InstantPopup);
   */
     
-  deskbar = new LDeskBar(this);
-    //deskbar->setHeight(22);
+  deskbar = new LDeskBar(toolBar); //gets added right now
     deskbar->start();
   clock = new LClock(this);
     clock->start();
@@ -69,8 +69,6 @@ void LDesktop::SetupToolbar(){
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     
   //Now add them all to the toolbar in the proper order
-  toolBar->addWidget(userTB);
-  toolBar->addWidget(deskbar);
   toolBar->addWidget(spacer);
   toolBar->addWidget(systray);
   toolBar->addWidget(clock);

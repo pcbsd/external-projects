@@ -6,9 +6,10 @@
 //===========================================
 #include "LDeskBar.h"
 
-LDeskBar::LDeskBar(QWidget *parent) : QWidget(parent){
-  this->setObjectName("desktoptoolbar");
-  this->setContentsMargins(0,0,0,0);
+LDeskBar::LDeskBar(QToolBar *parent) : QObject(parent){
+  TB = parent; //save the toolbar for later
+  //this->setObjectName("desktoptoolbar");
+  //this->setContentsMargins(0,0,0,0);
   //Find the path to the desktop folder
   if(QFile::exists(QDir::homePath()+"/Desktop")){ desktopPath = QDir::homePath()+"/Desktop"; }
   else if(QFile::exists(QDir::homePath()+"/desktop")){ desktopPath = QDir::homePath()+"/desktop"; }
@@ -45,74 +46,53 @@ void LDeskBar::start(){
 //   PRIVATE FUNCTIONS
 // =======================
 void LDeskBar::initializeDesktop(){
-  layout = new QHBoxLayout();
+  /*layout = new QHBoxLayout();
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(2);
     layout->setAlignment(Qt::AlignCenter);
-  this->setLayout(layout);
-  //Home button (important directories in the home dir - only created this once)
-  /*homeB = new QToolButton(this);
-    homeB->setPopupMode(QToolButton::InstantPopup);
-    homeB->setDefaultAction(new QAction(QIcon(":/images/default-home.png"),"",this));
-  homeM = new QMenu(this);
-    connect(homeM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
-    QDir home = QDir::home();
-    QFileInfoList homeDirs = home.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
-    for(int i=0; i<homeDirs.length(); i++){
-      if(homeDirs[i].fileName() == "bin"){} //ignore the binary directory
-      else if(homeDirs[i].fileName().toLower() == "music"){ homeM->addAction( newAction(homeDirs[i].canonicalFilePath(), homeDirs[i].fileName(), ":/images/default-audiodir.png") ); }
-      else if(homeDirs[i].fileName().toLower() == "videos"){ homeM->addAction( newAction(homeDirs[i].canonicalFilePath(), homeDirs[i].fileName(), ":/images/default-videodir.png") ); }
-      else if(homeDirs[i].fileName().toLower() == "images"){ homeM->addAction( newAction(homeDirs[i].canonicalFilePath(), homeDirs[i].fileName(), ":/images/default-graphicsdir.png") ); }
-      else if(homeDirs[i].fileName().toLower() == "documents"){ homeM->addAction( newAction(homeDirs[i].canonicalFilePath(), homeDirs[i].fileName(), ":/images/default-textdir.png") ); }
-      else if(homeDirs[i].fileName().toLower() == "downloads"){ homeM->addAction( newAction(homeDirs[i].canonicalFilePath(), homeDirs[i].fileName(), ":/images/default-netdir.png") ); }
-      else if(homeDirs[i].fileName().toLower() == "desktop"){ homeM->addAction( newAction(homeDirs[i].canonicalFilePath(), homeDirs[i].fileName(), ":/images/default-desktop.png") ); }
-      else{ homeM->addAction( newAction(homeDirs[i].canonicalFilePath(), homeDirs[i].fileName(), ":/images/default-dir.png") ); }
-    }
-    homeB->setMenu(homeM);
-    layout->addWidget(homeB);
-    */
+  this->setLayout(layout);*/
   //Applications on the desktop
-  appB = new LTBWidget(this);
+  appB = new LTBWidget(TB);
     //connect(appB, SIGNAL(clicked()), appB, SLOT(showMenu()) );
     //connect(appB, SIGNAL(longClicked()), appB, SLOT(showMenu()) ) ;
     appB->setIcon( LXDG::findIcon("favorites", ":/images/default-favorite.png") );
-  appM = new QMenu(this);
+  appM = new QMenu(TB);
     appB->setMenu(appM);
-    layout->addWidget(appB);
+    appA = TB->addWidget(appB);
     connect(appM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
   //Directories on the desktop
-  dirB = new LTBWidget(this);
+  dirB = new LTBWidget(TB);
     //connect(dirB, SIGNAL(clicked()), dirB, SLOT(showMenu()) );
     //connect(dirB, SIGNAL(longClicked()), dirB, SLOT(showMenu()) );
     dirB->setIcon( LXDG::findIcon("folder", ":/images/default-dir.png") );
-  dirM = new QMenu(this);
+  dirM = new QMenu(TB);
     dirB->setMenu(dirM);
-    layout->addWidget(dirB);
+    dirA = TB->addWidget(dirB);
     connect(dirM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
   //Audio Files on the desktop
-  audioM = new QMenu(tr("Audio"), this);
+  audioM = new QMenu(tr("Audio"), TB);
     connect(audioM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     audioM->setIcon( LXDG::findIcon("audio-x-generic",":/images/default-audiofile.png") );
   //Video Files on the desktop
-  videoM = new QMenu(tr("Video"), this);
+  videoM = new QMenu(tr("Video"), TB);
     connect(videoM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     videoM->setIcon( LXDG::findIcon("video-x-generic",":/images/default-video.png") );
   //Picture Files on the desktop
-  pictureM = new QMenu(tr("Pictures"), this);
+  pictureM = new QMenu(tr("Pictures"), TB);
     connect(pictureM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     pictureM->setIcon( LXDG::findIcon("image-x-generic",":/images/default-graphicsfile.png") );
   //Other Files on the desktop
-  otherM = new QMenu(tr("Other Files"), this);
+  otherM = new QMenu(tr("Other Files"), TB);
     connect(otherM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     otherM->setIcon( LXDG::findIcon("unknown",":/images/default-file.png") );
   //All Files Button
-  fileB = new LTBWidget(this);
+  fileB = new LTBWidget(TB);
     //connect(fileB, SIGNAL(clicked()), fileB, SLOT(showMenu()) );
     //connect(fileB, SIGNAL(longClicked()), fileB, SLOT(showMenu()) );
     fileB->setIcon( LXDG::findIcon("user-desktop", ":/images/default-file.png") );
-  fileM = new QMenu(this);
+  fileM = new QMenu(TB);
     fileB->setMenu(fileM);
-    layout->addWidget(fileB);
+    fileA = TB->addWidget(fileB);
 }
 
 QAction* LDeskBar::newAction(QString filepath, QString name, QString iconpath){
@@ -191,9 +171,9 @@ void LDeskBar::desktopChanged(){
     }
   }	
   //Setup the visibility of the buttons
-  appB->setVisible( !appM->isEmpty() );
-  dirB->setVisible( !dirM->isEmpty() );
-  fileB->setVisible( !fileM->isEmpty() );
+  appA->setVisible( !appM->isEmpty() );
+  dirA->setVisible( !dirM->isEmpty() );
+  fileA->setVisible( !fileM->isEmpty() );
   //Clear the totals list (since no longer in use)
   totals.clear();
 }

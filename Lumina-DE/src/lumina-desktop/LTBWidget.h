@@ -21,9 +21,6 @@ enum STATES {IDLE, ACTIVE, INACTIVE, NOTIFICATION};
 class LTBWidget : public QToolButton{
 	Q_OBJECT
 private:
-	//QTimer *timedown;
-	//QMenu *menu;
-	//QLabel *ICON, *TEXT;
 	STATES cstate, pstate;
 
 	void updateBackground(){
@@ -34,40 +31,28 @@ private:
 	}
 	
 signals:
-	//void clicked();
-	//void longClicked();
+
 	void wheelScroll(int change);
 	
 public:
 	LTBWidget(QWidget* parent) : QToolButton(parent){
-	  //this->setContentsMargins(0,0,0,0);
+	  this->setStyleSheet( this->styleSheet()+" LTBWidget::menu-indicator{image: none;}");
 	  cstate = IDLE;
-	  this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	  //this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	  this->setPopupMode(QToolButton::InstantPopup);
 	  this->setAutoRaise(true);
-	  //ICON = new QLabel(this);
-	    //ICON->setScaledContents(true);
-	  //TEXT = new QLabel(this);
-	    //TEXT->setWordWrap(true);
-	  //QHBoxLayout *layout = new QHBoxLayout(this);
-	    //layout->setContentsMargins(0,0,0,0);
-	    //layout->addWidget(ICON);
-	    //layout->addWidget(TEXT);
-	    //ICON->setVisible(false);
-	    //TEXT->setVisible(false);
-	  //this->setLayout(layout);
-	  //timedown = new QTimer(this);
-		//timedown->setSingleShot(true);
-		//timedown->setInterval(750); // 3/4 of a second default
-		//QObject::connect(timedown, SIGNAL(timeout()), this, SIGNAL(longClicked()) );
+
 	}
 	
 	~LTBWidget(){ 
 	}
 	
-	//void setMenu(QMenu *addmenu){ menu = addmenu; }
-	
-	//void setLongClickTime( int ms ){ timedown->setInterval(ms); }
+	/*void setVisuals(QString txt, QIcon ico = QIcon()){
+	  this->setText(txt);
+	  this->setIcon(ico);
+	  if(txt.isEmpty()){ this->setToolButtonStyle(Qt::ToolButtonIconOnly); }
+	  else{ this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); }
+	}*/
 	
 	void setState(STATES newstate){
 	  if(newstate == NOTIFICATION){ pstate = cstate; }
@@ -77,48 +62,14 @@ public:
 	}
 	
 public slots:
-	//void showMenu(){ menu->popup( this->mapToGlobal(pos()) ); }
-	
-	/*void setIcon(QIcon icon){
-	  if(icon.isNull()){ ICON->setVisible(false); }
-	  else{
-	    ICON->setPixmap(icon.pixmap(this->height()));
-	    ICON->setVisible(true);
-	  }
-	}
-	
-	void setText(QString text){
-	  if(text.isEmpty()){ TEXT->setVisible(false); }
-	  else{
-	    TEXT->setText(text);
-	    TEXT->setVisible(true);
-	  }
-	}*/
 	
 
 protected:
-	/*void mousePressEvent(QMouseEvent *event){ 
-		timedown->start(); 
-		event->accept();
-	}
-	void mouseReleaseEvent(QMouseEvent *event){ 
-		if(timedown->isActive()){ emit clicked(); }
-		timedown->stop(); 
-		event->accept();
-	}*/
 	void wheelEvent(QWheelEvent *event){
 	  int change = event->delta()/120; // 1/15th of a rotation (delta/120) is usually one "click" of the wheel
 	  emit wheelScroll(change);
 	}
-	/*void enterEvent(QEvent *event){
-	  if(cstate == NOTIFICATION){ cstate = pstate; } //return to non-notification state
-	  if(cstate == IDLE){ this->setBackgroundRole(QPalette::Highlight); }
-	  event->accept();	
-	}
-	void exitEvent(QEvent *event){
-	  updateBackground();
-	  event->accept();
-	}*/
+
 };
 
 #endif
