@@ -144,6 +144,19 @@ QString LX11::WindowVisibleIconName(WId win){
   return LX11::getNetWMProp(win, "_NET_WM_VISIBLE_ICON_NAME");	
 }
 
+// ===== WindowPixmap() =====
+QPixmap LX11::WindowPixmap(WId win){
+  XWMHints *hints = XGetWMHints(QX11Info::display(), win);
+  QPixmap pix;
+  if(hints != 0){
+    if( hints->flags & IconPixmapHint ){
+      pix = QPixmap::fromX11Pixmap( hints->icon_pixmap );
+    }
+    XFree(hints);
+  }
+  return pix;
+}
+
 // ===== GetWindowState() =====
 LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
   //forDisplay lets the function know whether it needs to follow the TaskBar/Pager ignore rules
@@ -172,6 +185,12 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
       }
     }
     XFree(data);
+  }
+  //If visible, check whether it is the active window
+  if(state == LX11::VISIBLE){
+    if(win == LX11::ActiveWindow()){
+      state = LX11::ACTIVE;
+    }	    
   }
   return state;  	
 }

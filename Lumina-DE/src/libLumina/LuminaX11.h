@@ -50,6 +50,7 @@ public:
 	static QString WindowVisibleName(WId); 	// long name (translated)
 	static QString WindowIconName(WId); 	// short name (untranslated)
 	static QString WindowVisibleIconName(WId); // short name (translated)
+	static QPixmap WindowPixmap(WId);		// Pixmap/icon for the window
 	static WINDOWSTATE GetWindowState(WId win, bool forDisplay=true); //State of activity
 	
 	//EWMH Convenience functions
