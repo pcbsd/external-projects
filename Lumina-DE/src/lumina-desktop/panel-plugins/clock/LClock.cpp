@@ -6,15 +6,17 @@
 //===========================================
 #include "LClock.h"
 
-LClock::LClock(QWidget *parent) : QLabel(parent){
+LClock::LClock(QWidget *parent) : LPPlugin(parent, "clock"){
   //Setup the widget
-  this->setAlignment(Qt::AlignCenter);
-
+  label = new QLabel(this);
+    label->setAlignment(Qt::AlignCenter);
+  this->layout()->addWidget(label);
   //Setup the timer
   timer = new QTimer();
   timer->setInterval(1000); //update once a second
   connect(timer,SIGNAL(timeout()), this, SLOT(updateTime()) );
   updateTime();
+  timer->start();
 }
 
 LClock::~LClock(){
@@ -22,12 +24,9 @@ LClock::~LClock(){
   delete timer;
 }
 
-void LClock::start(){
-  timer->start();	
-}
 void LClock::updateTime(){
   QDateTime CT = QDateTime::currentDateTime();
   //Now update the display
-  this->setText(CT.toString("h:mm AP")+"\n"+CT.toString("M/d/yy"));
-  this->setToolTip(CT.toString("ddd M/d/yy"));
+  label->setText( CT.toString("h:mm AP") );
+  label->setToolTip(CT.toString("ddd M/d/yy"));
 }

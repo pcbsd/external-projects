@@ -11,28 +11,34 @@ SOURCES += main.cpp \
 	WMProcess.cpp \
 	LSession.cpp \
 	LDesktop.cpp \
-	LClock.cpp \
-	LSysTray.cpp \
-	LDeskBar.cpp \
-	AppMenu.cpp \
-	LUserButton.cpp
-	
+	LPanel.cpp \
+	panel-plugins/userbutton/AppMenu.cpp \
+	panel-plugins/userbutton/LUserButton.cpp \
+	panel-plugins/desktopbar/LDeskBar.cpp \
+	panel-plugins/systemtray/LSysTray.cpp \
+	panel-plugins/clock/LClock.cpp
 
 
 HEADERS  += Globals.h \
 	WMProcess.h \
 	LSession.h \
 	LDesktop.h \
-	LClock.h \
-	LSysTray.h \
-	LDeskBar.h \
-	LTBWidget.h \
-	AppMenu.h \
-	LUserButton.h
+	LPanel.h \
+	panel-plugins/LPPlugin.h \
+	panel-plugins/NewPP.h \
+	panel-plugins/LTBWidget.h \
+	panel-plugins/userbutton/AppMenu.h \
+	panel-plugins/userbutton/LUserButton.h \
+	panel-plugins/desktopbar/LDeskBar.h \
+	panel-plugins/systemtray/LSysTray.h \
+	panel-plugins/spacer/LSpacer.h \
+	panel-plugins/clock/LClock.h
 
 FORMS    += 
 
 RESOURCES+= Lumina-DE.qrc
+
+INCLUDEPATH += ../libLumina /usr/local/include
 
 desktop.files = Lumina-DE.desktop
 desktop.path = /usr/local/share/xsessions

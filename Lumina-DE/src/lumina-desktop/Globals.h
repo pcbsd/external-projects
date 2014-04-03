@@ -9,6 +9,12 @@
 
 #include <unistd.h>
 
+class Lumina{
+public:
+  enum STATES {NONE, VISIBLE, INVISIBLE, ACTIVE, NOTIFICATION, NOSHOW};
+
+};
+
 class SYSTEM{
 public:
 	//Current Username
@@ -24,13 +30,5 @@ public:
 	//Restart the system
 	static void restart(){ system("(shutdown -r now) &"); }
 };
-
-/*
-class LUMINA{
-public:
-	static QIcon getIcon(QString iconname);
-	static QIcon getFileIcon(QString filename);	
-};
-*/
 
 #endif

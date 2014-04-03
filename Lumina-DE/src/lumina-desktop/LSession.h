@@ -12,6 +12,11 @@
 #include <QString>
 #include <QX11Info>
 
+#include "Globals.h"
+
+//LibLumina X11 class
+#include <LuminaX11.h>
+
 //X includes (these need to be last due to Qt compile issues)
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -37,18 +42,6 @@ public:
 	//System Tray Utilities
 	static bool StartupSystemTray();
 	static bool CloseSystemTray();
-	
-	//Window List Utilities
-	static QList<WId> WindowList(WId root = 0);
-	static void CloseWindow(WId);
-	
-	static QString WindowName(WId);
-	static QString WindowVisibleName(WId);
-	static QString WindowIconName(WId);
-	static QString WindowVisibleIconName(WId);
-	static bool WindowRequiresAttention(WId);
-
-	static QString getNetWMProp(WId win, QString prop);
 	
 private slots:
 	//system tray functions

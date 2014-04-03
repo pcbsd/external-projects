@@ -6,21 +6,10 @@
 //===========================================
 #include "LSysTray.h"
 
-LSysTray::LSysTray(QWidget *parent) : QWidget(parent){
-  this->setContentsMargins(0,0,0,0);
-  layout = new QHBoxLayout;
-    layout->setContentsMargins(0,0,0,0);
-    layout->setAlignment(Qt::AlignTop | Qt::AlignRight);
-    layout->setSpacing(2);
-  this->setLayout(layout);
-  //this->setFrameWidth(1);
-  //this->setFrameStyle(QFrame::Panel | QFrame::Raised);
-  //this->setLineWidth(1);
-  //this->setStyleSheet("QFrame { background-color: black; }");
-  //this->setFixedHeight(22);
-  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-  //trayID = 0;
+LSysTray::LSysTray(QWidget *parent) : LPPlugin(parent, "systemtray"){
+  this->layout()->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   isRunning = false;
+  start();
 }
 
 LSysTray::~LSysTray(){
@@ -65,13 +54,14 @@ void LSysTray::addTrayIcon(WId win){
   if(!exists){
     //qDebug() << " - New Icon";
     QX11EmbedContainer *cont = new QX11EmbedContainer(this);
-      cont->setFixedSize(22,22);
+      cont->setFixedSize(this->height(),this->height());
     //Now embed the client
     cont->embedClient(win);
     connect(cont,SIGNAL(clientIsEmbedded()),this,SLOT(updateStatus()) );
     connect(cont,SIGNAL(clientClosed()),this,SLOT(trayAppClosed()) );
     trayIcons << cont;
-    layout->addWidget(cont);
+    this->layout()->addWidget(cont);
+    this->layout()->update(); //make sure there is no blank space
     //Set the background on the client window
 
   }
@@ -93,11 +83,11 @@ void LSysTray::trayAppClosed(){
     if(trayIcons[i]->clientWinId() == 0){
       qDebug() << "System Tray: Removing icon";
       QX11EmbedContainer *cont = trayIcons.takeAt(i);
-      layout->removeWidget(cont);
+      this->layout()->removeWidget(cont);
       delete cont;
     }
   }
-  layout->update(); //update the layout (no gaps)
+  this->layout()->update(); //update the layout (no gaps)
   this->update();	
 }
 

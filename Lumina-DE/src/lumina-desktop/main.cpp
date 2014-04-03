@@ -76,14 +76,15 @@ int main(int argc, char ** argv)
     WM.startWM();
     QObject::connect(&WM, SIGNAL(WMShutdown()), &a, SLOT(closeAllWindows()) );
     //Now start the desktop
-    qDebug() << " - Start Desktop";
+    
     QDesktopWidget DW;
     QList<LDesktop*> screens;
     for(int i=0; i<DW.screenCount(); i++){
+      qDebug() << " - Start Desktop " << i;
       screens << new LDesktop(i);
-      screens[i]->show();
+      a.processEvents();
     }
-    a.processEvents();
+    qDebug() << " --exec";
     int retCode = a.exec();
     qDebug() << "Stopping the window manager";
     WM.stopWM();

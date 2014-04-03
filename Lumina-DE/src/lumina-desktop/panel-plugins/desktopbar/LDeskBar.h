@@ -4,16 +4,15 @@
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
+//  This plugin displays the contents of the user's home directory 
+//    as organized within a couple buttons on the panel (apps, dirs, files)
+//===========================================
 #ifndef _LUMINA_DESKTOP_DESKBAR_H
 #define _LUMINA_DESKTOP_DESKBAR_H
 
+// Qt includes
 #include <QWidget>
-//#include <QDir>
-//#include <QFile>
-//#include <QTextStream>
 #include <QString>
-//#include <QStringList>
-//#include <QToolButton>
 #include <QAction>
 #include <QMenu>
 #include <QProcess>
@@ -24,26 +23,25 @@
 #include <QToolBar>
 #include <QDebug>
 
+// libLumina includes
 #include <LuminaXDG.h>
-#include "LTBWidget.h"
 
-class LDeskBar : public QObject{
+// local includes
+#include "../LTBWidget.h"
+#include "../LPPlugin.h"
+
+class LDeskBarPlugin : public LPPlugin{
 	Q_OBJECT
 public:
-	LDeskBar(QToolBar* parent=0);
-	~LDeskBar();
-	
-	//void setHeight(int pix);
-	void start();
+	LDeskBarPlugin(QWidget* parent=0);
+	~LDeskBarPlugin();
 	
 private:
 	//QHBoxLayout *layout;
 	QString desktopPath;
 	QFileSystemWatcher *watcher;
-	QToolBar *TB;
 	//Special toolbuttons and menus
 	LTBWidget *appB, *fileB, *dirB;
-	QAction *appA, *fileA, *dirA; //actions for the buttons in the toolbar
 	QMenu *appM, *dirM, *audioM, *videoM, *pictureM, *fileM, *otherM;
 	QStringList audioFilter, videoFilter, pictureFilter;
 	QFileInfoList totals;
@@ -63,5 +61,7 @@ private slots:
 	void desktopChanged();
 	
 };
+
+
 #endif
 

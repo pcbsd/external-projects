@@ -13,16 +13,17 @@
 #include <QWidget>
 #include <QString>
 
-class LClock : public QLabel{
+#include "../LPPlugin.h"
+
+class LClock : public LPPlugin{
 	Q_OBJECT
 public:
 	LClock(QWidget *parent = 0);
 	~LClock();
 	
-	void start();
-	
 private:
 	QTimer *timer;
+	QLabel *label;
 	
 private slots:
 	void updateTime();

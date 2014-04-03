@@ -8,27 +8,19 @@
 #define _LUMINA_DESKTOP_LDESKTOP_H
 
 #include <QCoreApplication>
-#include <QToolBar>
-#include <QToolButton>
-#include <QDesktopWidget>
-#include <QMenu>
-#include <QInputDialog>
-#include <QProcess>
-#include <QTimer>
-#include <QMainWindow>
+
+
 #include <QSettings>
 #include <QFile>
+#include <QList>
 #include <QDebug>
-#include <QPoint>
+#include <QTimer>
 
+
+#include "LPanel.h"
 #include "Globals.h"
-#include "LClock.h"
-#include "LDeskBar.h"
-#include "LUserButton.h"
 
-#include "LSysTray.h" //must come last due to X library calls
-
-class LDesktop : public QMainWindow{
+class LDesktop : public QObject{
 	Q_OBJECT
 public:
 	LDesktop(int deskNum=0);
@@ -43,23 +35,27 @@ private:
 	QSettings *settings;
 	QTimer *bgtimer;
 	QDesktopWidget *desktop;
-	QToolBar *toolBar;
-	
+	QString DPREFIX;
+	int desktopnumber;
+	bool defaultdesktop;
+	//QToolBar *toolBar;
+	QList<LPanel*> PANELS;
 	//ToolBar widgets
-	LUserButton *userTB;
-	LSysTray *systray;
-	LClock *clock;
+	//LUserButtonPlugin *userTB;
+	//LSysTray *systray;
+	//LClock *clock;
 	//QMenu *sysmenu;
-	LDeskBar *deskbar;
+	//LDeskBar *deskbar;
 	
-	void SetupToolbar();
+	//void SetupToolbar();
 	
 private slots:
-	void SystemRun();
+	void UpdatePanels();
+	//void SystemRun();
 	void UpdateBackground();
 
-protected:
+/*protected:
 	void moveEvent(QMoveEvent *event);
-	
+*/	
 };
 #endif

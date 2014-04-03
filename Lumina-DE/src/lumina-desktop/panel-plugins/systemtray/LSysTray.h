@@ -14,10 +14,11 @@
 #include <QX11Info>
 #include <QX11EmbedContainer>
 
-//Lumina includes
-#include "LSession.h"
+//Local includes
+#include "../../LSession.h"
+#include "../LPPlugin.h"
 
-class LSysTray : public QWidget{
+class LSysTray : public LPPlugin{
 	Q_OBJECT
 public:
 	LSysTray(QWidget *parent = 0);
@@ -27,7 +28,6 @@ public:
 	void stop();
 	
 private:
-	QHBoxLayout *layout;
 	bool isRunning;
 	QList<QX11EmbedContainer*> trayIcons;
 	

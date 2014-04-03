@@ -6,10 +6,7 @@
 //===========================================
 #include "LDeskBar.h"
 
-LDeskBar::LDeskBar(QToolBar *parent) : QObject(parent){
-  TB = parent; //save the toolbar for later
-  //this->setObjectName("desktoptoolbar");
-  //this->setContentsMargins(0,0,0,0);
+LDeskBarPlugin::LDeskBarPlugin(QWidget *parent) : LPPlugin(parent, "desktopbar"){
   //Find the path to the desktop folder
   if(QFile::exists(QDir::homePath()+"/Desktop")){ desktopPath = QDir::homePath()+"/Desktop"; }
   else if(QFile::exists(QDir::homePath()+"/desktop")){ desktopPath = QDir::homePath()+"/desktop"; }
@@ -25,10 +22,12 @@ LDeskBar::LDeskBar(QToolBar *parent) : QObject(parent){
   if(!desktopPath.isEmpty()){ 
     watcher->addPath(desktopPath); 
   }
+  connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(desktopChanged()) );
+  QTimer::singleShot(1,this, SLOT(desktopChanged()) ); //make sure to load it the first time
  
 }
 
-LDeskBar::~LDeskBar(){
+LDeskBarPlugin::~LDeskBarPlugin(){
   if(!desktopPath.isEmpty()){
     watcher->removePath(desktopPath);
     disconnect(watcher);
@@ -37,75 +36,70 @@ LDeskBar::~LDeskBar(){
   
 }
 
-void LDeskBar::start(){
-  //Now update the desktop bar in a different thread
-  QTimer::singleShot(1,this,SLOT(desktopChanged()) );
-  connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(desktopChanged()) );
-}
 // =======================
 //   PRIVATE FUNCTIONS
 // =======================
-void LDeskBar::initializeDesktop(){
+void LDeskBarPlugin::initializeDesktop(){
   /*layout = new QHBoxLayout();
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(2);
     layout->setAlignment(Qt::AlignCenter);
   this->setLayout(layout);*/
   //Applications on the desktop
-  appB = new LTBWidget(TB);
+  appB = new LTBWidget(this);
     //connect(appB, SIGNAL(clicked()), appB, SLOT(showMenu()) );
     //connect(appB, SIGNAL(longClicked()), appB, SLOT(showMenu()) ) ;
     appB->setIcon( LXDG::findIcon("favorites", ":/images/default-favorite.png") );
-  appM = new QMenu(TB);
+  appM = new QMenu(this);
     appB->setMenu(appM);
-    appA = TB->addWidget(appB);
+    this->layout()->addWidget(appB);
     connect(appM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
   //Directories on the desktop
-  dirB = new LTBWidget(TB);
+  dirB = new LTBWidget(this);
     //connect(dirB, SIGNAL(clicked()), dirB, SLOT(showMenu()) );
     //connect(dirB, SIGNAL(longClicked()), dirB, SLOT(showMenu()) );
     dirB->setIcon( LXDG::findIcon("folder", ":/images/default-dir.png") );
-  dirM = new QMenu(TB);
+  dirM = new QMenu(this);
     dirB->setMenu(dirM);
-    dirA = TB->addWidget(dirB);
+    this->layout()->addWidget(dirB);
     connect(dirM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
   //Audio Files on the desktop
-  audioM = new QMenu(tr("Audio"), TB);
+  audioM = new QMenu(tr("Audio"), this);
     connect(audioM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     audioM->setIcon( LXDG::findIcon("audio-x-generic",":/images/default-audiofile.png") );
   //Video Files on the desktop
-  videoM = new QMenu(tr("Video"), TB);
+  videoM = new QMenu(tr("Video"), this);
     connect(videoM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     videoM->setIcon( LXDG::findIcon("video-x-generic",":/images/default-video.png") );
   //Picture Files on the desktop
-  pictureM = new QMenu(tr("Pictures"), TB);
+  pictureM = new QMenu(tr("Pictures"), this);
     connect(pictureM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     pictureM->setIcon( LXDG::findIcon("image-x-generic",":/images/default-graphicsfile.png") );
   //Other Files on the desktop
-  otherM = new QMenu(tr("Other Files"), TB);
+  otherM = new QMenu(tr("Other Files"), this);
     connect(otherM,SIGNAL(triggered(QAction*)),this,SLOT(ActionTriggered(QAction*)) );
     otherM->setIcon( LXDG::findIcon("unknown",":/images/default-file.png") );
   //All Files Button
-  fileB = new LTBWidget(TB);
+  fileB = new LTBWidget(this);
     //connect(fileB, SIGNAL(clicked()), fileB, SLOT(showMenu()) );
     //connect(fileB, SIGNAL(longClicked()), fileB, SLOT(showMenu()) );
     fileB->setIcon( LXDG::findIcon("user-desktop", ":/images/default-file.png") );
-  fileM = new QMenu(TB);
+  fileM = new QMenu(this);
     fileB->setMenu(fileM);
-    fileA = TB->addWidget(fileB);
+    this->layout()->addWidget(fileB);
 }
 
-QAction* LDeskBar::newAction(QString filepath, QString name, QString iconpath){
+QAction* LDeskBarPlugin::newAction(QString filepath, QString name, QString iconpath){
   return newAction(filepath, name, QIcon(iconpath));
 }
 
-QAction* LDeskBar::newAction(QString filepath, QString name, QIcon icon){
+QAction* LDeskBarPlugin::newAction(QString filepath, QString name, QIcon icon){
   QAction *act = new QAction(icon, name, this);
     act->setWhatsThis(filepath);
   return act;	 
 }
 
-void LDeskBar::updateMenu(QMenu* menu, QFileInfoList files, bool trim){
+void LDeskBarPlugin::updateMenu(QMenu* menu, QFileInfoList files, bool trim){
   menu->clear();
   //re-create the menu (since it is hidden from view)
   for(int i=0; i<files.length(); i++){
@@ -118,14 +112,14 @@ void LDeskBar::updateMenu(QMenu* menu, QFileInfoList files, bool trim){
 // =======================
 //     PRIVATE SLOTS
 // =======================
-void LDeskBar::ActionTriggered(QAction* act){
+void LDeskBarPlugin::ActionTriggered(QAction* act){
  //Open up the file with the appropriate application
  QString cmd = "lumina-open "+act->whatsThis();
  qDebug() << "Open File:" << cmd;
  QProcess::startDetached(cmd);
 }
 
-void LDeskBar::desktopChanged(){
+void LDeskBarPlugin::desktopChanged(){
   if(!desktopPath.isEmpty()){
     QDir dir(desktopPath);
     totals = dir.entryInfoList( QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
@@ -171,9 +165,9 @@ void LDeskBar::desktopChanged(){
     }
   }	
   //Setup the visibility of the buttons
-  appA->setVisible( !appM->isEmpty() );
-  dirA->setVisible( !dirM->isEmpty() );
-  fileA->setVisible( !fileM->isEmpty() );
+  appB->setVisible( !appM->isEmpty() );
+  dirB->setVisible( !dirM->isEmpty() );
+  fileB->setVisible( !fileM->isEmpty() );
   //Clear the totals list (since no longer in use)
   totals.clear();
 }

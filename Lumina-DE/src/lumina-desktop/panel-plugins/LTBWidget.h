@@ -8,26 +8,26 @@
 #define _LUMINA_TOOLBAR_WIDGET_H
 
 #include <QToolButton>
-#include <QTimer>
-#include <QMenu>
-#include <QMouseEvent>
+//#include <QTimer>
+//#include <QMenu>
+//#include <QMouseEvent>
 #include <QWheelEvent>
-#include <QEvent>
-#include <QObject>
-#include <QHBoxLayout>
-
-enum STATES {IDLE, ACTIVE, INACTIVE, NOTIFICATION};
+//#include <QEvent>
+//#include <QObject>
+//#include <QHBoxLayout>
+#include "Globals.h"
 
 class LTBWidget : public QToolButton{
 	Q_OBJECT
 private:
-	STATES cstate, pstate;
+	Lumina::STATES cstate;
 
 	void updateBackground(){
-	  if(cstate == IDLE){ this->setBackgroundRole(QPalette::NoRole); }
-	  else if(cstate == ACTIVE){ this->setBackgroundRole(QPalette::Button); }
-	  else if(cstate == INACTIVE){ this->setBackgroundRole(QPalette::Dark); }
-	  else if(cstate == NOTIFICATION){ this->setBackgroundRole(QPalette::Highlight); }
+	  if(cstate == Lumina::NONE){ this->setBackgroundRole(QPalette::NoRole); }
+	  else if(cstate == Lumina::VISIBLE){ this->setBackgroundRole(QPalette::Light); }
+	  else if(cstate == Lumina::INVISIBLE){ this->setBackgroundRole(QPalette::Dark); }
+	  else if(cstate == Lumina::ACTIVE){ this->setBackgroundRole(QPalette::Button); }
+	  else if(cstate == Lumina::NOTIFICATION){ this->setBackgroundRole(QPalette::Highlight); }
 	}
 	
 signals:
@@ -37,7 +37,7 @@ signals:
 public:
 	LTBWidget(QWidget* parent) : QToolButton(parent){
 	  this->setStyleSheet( this->styleSheet()+" LTBWidget::menu-indicator{image: none;}");
-	  cstate = IDLE;
+	  cstate = Lumina::NONE;
 	  //this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	  this->setPopupMode(QToolButton::InstantPopup);
 	  this->setAutoRaise(true);
@@ -47,16 +47,7 @@ public:
 	~LTBWidget(){ 
 	}
 	
-	/*void setVisuals(QString txt, QIcon ico = QIcon()){
-	  this->setText(txt);
-	  this->setIcon(ico);
-	  if(txt.isEmpty()){ this->setToolButtonStyle(Qt::ToolButtonIconOnly); }
-	  else{ this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); }
-	}*/
-	
-	void setState(STATES newstate){
-	  if(newstate == NOTIFICATION){ pstate = cstate; }
-	  else{ pstate = IDLE; }
+	void setState(Lumina::STATES newstate){
 	  cstate = newstate;
 	  updateBackground();
 	}

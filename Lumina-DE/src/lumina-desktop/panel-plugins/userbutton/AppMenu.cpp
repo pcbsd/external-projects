@@ -4,7 +4,7 @@ AppMenu::AppMenu(QWidget* parent) : QMenu(parent){
   appstorelink = "/usr/local/share/applications/softmanager.desktop"; //Default application "store" to display (AppCafe in PC-BSD)
   APPS.clear();
   watcher = new QFileSystemWatcher(this);
-    connect(watcher, SIGNAL(directoryChanged()), this, SLOT(watcherUpdate()) );
+    connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(watcherUpdate()) );
   QTimer::singleShot(200, this, SLOT(start()) ); //Now start filling the menu
   this->setTitle(tr("Applications"));
 }
@@ -30,6 +30,7 @@ void AppMenu::updateAppList(){
     }
     //--Now create the sub-menus
     QStringList cats = APPS.keys();
+    cats.sort(); //make sure they are alphabetical
     for(int i=0; i<cats.length(); i++){
       //QString cat, icon;
       //if(cats[i] == ""){ name = tr(""); icon = ""; }

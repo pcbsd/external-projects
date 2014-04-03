@@ -6,7 +6,7 @@
 //===========================================
 #include "LSession.h"
 
-Window LuminaSessionTrayID;
+WId LuminaSessionTrayID;
 
 LSession::LSession(int &argc, char ** argv) : QApplication(argc, argv){
   this->setApplicationName("Lumina Desktop Environment");
@@ -22,6 +22,7 @@ LSession::~LSession(){
 
 bool LSession::x11EventFilter(XEvent *event){
   //Detect X Event types and send the appropriate signal(s)
+   bool testWin = false;
    switch(event->type){
   // -------------------------
     case ClientMessage:
@@ -39,15 +40,25 @@ bool LSession::x11EventFilter(XEvent *event){
     	break;
     case MapNotify:      //window mapped (visible)
     case UnmapNotify:    //window unmapped (invisible)
-    //case VisibilityNotify: //window subsection visibility changed
+    case VisibilityNotify: //window subsection visibility changed
     case ReparentNotify: //window re-parented
     case DestroyNotify:  //window destroyed
     case CreateNotify:   //window created
+    //default:
     	emit WindowListEvent();
-    	
+	testWin=true;
   }
   // -----------------------
-
+  if(testWin){
+	//Just for testing - print out the window titles right now
+        QList<WId> WL = LX11::WindowList();
+	qDebug() << "Window Event:";
+        for(int i=0; i<WL.length(); i++){
+	  if( LX11::GetWindowState(WL[i]) != LX11::IGNORE ){
+	    qDebug() <<WL[i] << " - " << LX11::WindowName(WL[i]) << " -> "<< LX11::WindowVisibleIconName(WL[i]);
+	  }
+	}
+  }
   //Now continue on with the event handling (don't change it)
   return false;
 }
@@ -145,99 +156,4 @@ void LSession::parseClientMessageEvent(XClientMessageEvent *event){
     	//Unknown system tray operation code
     	opcode=1; //junk operation for compiling purposes*/
   }
-}
-
-//============================
-//   WINDOW LIST OPERATIONS
-//============================
-QList<WId> LSession::WindowList(WId root){
-  QList<WId> output;
-  if(root == 0){ root = QX11Info::appRootWindow(); }
-  Atom a = XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", true);
-  Atom realType;
-  int format;
-  unsigned long num, bytes;
-  unsigned char *data = 0;
-  int status = XGetWindowProperty(QX11Info::display(), root, a, 0L, (~0L),
-  	     false, AnyPropertyType, &realType, &format, &num, &bytes, &data);
-  if( (status >= Success) && (num > 0) ){
-    Q_ASSERT(format == 32);
-    quint32 *array = (quint32*) data;
-    for(quint32 i=0; i<num; i++){
-      output << (Window) array[i];
-    }
-    XFree(data);
-  }
-  return output;
-}
-
-void LSession::CloseWindow(WId win){
-XClientMessageEvent msg;
-    msg.type = ClientMessage;
-    msg.window = win;
-    msg.message_type = XInternAtom(QX11Info::display(),"_NET_CLOSE_WINDOW",true);
-    msg.format = 32;
-    msg.data.l[0] = CurrentTime;
-    msg.data.l[1] = 2; //Direct user interaction
-    msg.data.l[2] = 0;
-    msg.data.l[3] = 0;
-    msg.data.l[4] = 0;
-  XSendEvent(QX11Info::display(), QX11Info::appRootWindow(), False, StructureNotifyMask, (XEvent*)&msg);		
-}
-
-QString LSession::WindowName(WId win){
-  return LSession::getNetWMProp(win, "_NET_WM_NAME");
-}
-
-QString LSession::WindowVisibleName(WId win){
-  return LSession::getNetWMProp(win, "_NET_WM_VISIBLE_NAME");	
-}
-
-QString LSession::WindowIconName(WId win){
-  return LSession::getNetWMProp(win, "_NET_WM_ICON_NAME");	
-}
-
-QString LSession::WindowVisibleIconName(WId win){
-  return LSession::getNetWMProp(win, "_NET_WM_VISIBLE_ICON_NAME");	
-}
-
-bool LSession::WindowRequiresAttention(WId win){
-  Display *disp = QX11Info::display();
-  Atom SA = XInternAtom(disp, "_NET_WM_STATE", false);
-  Atom LookFor = XInternAtom(disp, "NET_WM_STATE_DEMANDS_ATTENTION", false);
-  Atom type;
-  int format;
-  unsigned long num, bytes;
-  unsigned char *data = 0;
-  int status = XGetWindowProperty( disp, win, SA, 0, ~(0L), false, AnyPropertyType,
-  	  			&type, &format, &num, &bytes, &data);
-  bool attention = false;
-  if(status >= Success && data){
-    for(unsigned int i=0; i<num; i++){
-      if(data[i] == LookFor){
-      	attention = true;
-      	break;
-      }
-    }
-    XFree(data);
-  }
-  return attention;  	
-}
-
-QString LSession::getNetWMProp(WId win, QString prop){
-  Display *disp = QX11Info::display();
-  Atom NA = XInternAtom(disp, prop.toUtf8(), false);
-  Atom utf = XInternAtom(disp, "UTF8_STRING", false);
-  Atom type;
-  int format;
-  unsigned long num, bytes;
-  unsigned char *data = 0;
-  int status = XGetWindowProperty( disp, win, NA, 0, 65536, false, utf,
-  	  			&type, &format, &num, &bytes, &data);
-  QString property;
-  if(status >= Success && data){
-    property = QString::fromUtf8( (char *) data);
-    XFree(data);
-  }
-  return property;
 }
