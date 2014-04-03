@@ -18,6 +18,10 @@ SOURCES	+= LuminaXDG.cpp \
 	LuminaUtils.cpp \
 	LuminaX11.cpp
 
+INCLUDEPATH += /usr/local/include
+
+LIBS	+= -lX11 -lXrender
+
 include.path=/usr/local/include/
 include.files=LuminaXDG.h \
 	LuminaUtils.h \
