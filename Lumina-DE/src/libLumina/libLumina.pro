@@ -11,14 +11,17 @@ LANGUAGE	= C++
 VERSION		= 1
 
 HEADERS	+= LuminaXDG.h \
-	LuminaUtils.h
+	LuminaUtils.h \
+	LuminaX11.h
 
 SOURCES	+= LuminaXDG.cpp \
-	LuminaUtils.cpp
+	LuminaUtils.cpp \
+	LuminaX11.cpp
 
 include.path=/usr/local/include/
 include.files=LuminaXDG.h \
-	LuminaUtils.h
+	LuminaUtils.h \
+	LuminaX11.h \
 
 INSTALLS += target include 
 
