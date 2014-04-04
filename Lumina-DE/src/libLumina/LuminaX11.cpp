@@ -110,7 +110,7 @@ void LX11::IconifyWindow(WId win){
 }
 
 // ===== RestoreWindow() =====
-void RestoreWindow(WId win){
+void LX11::RestoreWindow(WId win){
   Display *disp = QX11Info::display();
     XMapWindow(disp, win); //make it visible again
     XRaiseWindow(disp, win); //raise it to the top of the stack

@@ -16,6 +16,9 @@
 #include <QPixmap>
 #include <QX11Info>
 #include <QDebug>
+// Addition includes for compilations (cause issues with X11 libs later)
+#include <QDir>
+#include <QEvent>
 
 
 //X includes (these need to be last due to Qt compile issues)
