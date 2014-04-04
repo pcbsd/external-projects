@@ -53,6 +53,11 @@ public:
 	static QPixmap WindowPixmap(WId);		// Pixmap/icon for the window
 	static WINDOWSTATE GetWindowState(WId win, bool forDisplay=true); //State of activity
 	
+	//System Tray Management
+	static WId startSystemTray(); //Startup the system tray
+	static void closeSystemTray(WId); //Close the system tray
+	
+	
 	//EWMH Convenience functions
 	static QString getNetWMProp(WId win, QString prop); //Returns a _NET_WM_* string value
 };

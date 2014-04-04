@@ -195,6 +195,82 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
   return state;  	
 }
 
+// ===== startSystemTray() =====
+WId LX11::startSystemTray(){
+  qDebug() << "Starting System Tray";
+  //Setup the freedesktop standards compliance
+  Display *disp = QX11Info::display();
+  Window root = QX11Info::appRootWindow();
+  
+  //Get the appropriate atom for this screen
+  QString str = QString("_NET_SYSTEM_TRAY_S%1").arg(DefaultScreen(disp));
+  qDebug() << "Default Screen Atom Name:" << str;
+  Atom _NET_SYSTEM_TRAY_S = XInternAtom(disp,str.toAscii(),false);
+  //Make sure that there is no other system tray running
+  if(XGetSelectionOwner(disp, _NET_SYSTEM_TRAY_S) != None){
+    qWarning() << "An alternate system tray is currently in use";
+    return 0;
+  }
+  //Create a simple window to register as the tray (not visible)
+  Window LuminaSessionTrayID = XCreateSimpleWindow(disp, root,-1,-1,1,1,0,0,0);
+  //register this widget as the system tray
+  XSetSelectionOwner(disp, _NET_SYSTEM_TRAY_S, LuminaSessionTrayID, CurrentTime);
+  //Make sure that it was registered properly
+  if(XGetSelectionOwner(disp, _NET_SYSTEM_TRAY_S) != LuminaSessionTrayID){
+    qWarning() << "Could not register the system tray";
+    XDestroyWindow(disp, LuminaSessionTrayID);
+    return 0;
+  }
+  //Now register the orientation of the system tray
+  //int horz = _NET_SYSTEM_TRAY_ORIENTATION_HORZ;
+  //XChangeProperty(disp, trayID, XInternAtom(disp,"_NET_SYSTEM_TRAY_ORIENTATION",true),
+  	  	//XA_CARDINAL, 32, PropModeReplace, (unsigned char*) &horz, 1);
+  //Now get the visual ID for the system tray
+  XVisualInfo *XVI = new XVisualInfo;
+    XVI->screen = QX11Info::appScreen();
+    XVI->depth = 32;
+    XVI->c_class = TrueColor;
+  int num;
+  XVI = XGetVisualInfo(disp, VisualScreenMask | VisualDepthMask | VisualClassMask , XVI, &num);
+  VisualID vis = 0;
+  if(XVI != 0){
+    XRenderPictFormat *fmt;
+    for(int i=0; i<num; i++){
+      fmt = XRenderFindVisualFormat(disp, XVI[i].visual);
+      if( (fmt !=0) && (fmt->type == PictTypeDirect) && (fmt->direct.alphaMask!=0) ){
+        vis = XVI[i].visualid;
+        break;
+      }
+    }
+  }
+  XFree(XVI); //done with this - clean it up
+  //Now register the visual ID
+  if(vis!=0){
+    XChangeProperty(disp, LuminaSessionTrayID, XInternAtom(disp,"_NET_SYSTEM_TRAY_VISUAL",true),
+  	  	XA_VISUALID, 32, PropModeReplace, (unsigned char*) &vis, 1);	  
+  }
+  //Finally, send out an X event letting others know that the system tray is up and running
+  XClientMessageEvent msg;
+    msg.type = ClientMessage;
+    msg.window = root;
+    msg.message_type = XInternAtom(disp,"MANAGER",true);
+    msg.format = 32;
+    msg.data.l[0] = CurrentTime;
+    msg.data.l[1] = _NET_SYSTEM_TRAY_S;
+    msg.data.l[2] = LuminaSessionTrayID;
+    msg.data.l[3] = 0;
+    msg.data.l[4] = 0;
+  XSendEvent(disp, root, False, StructureNotifyMask, (XEvent*)&msg);
+  
+  //Success
+  return LuminaSessionTrayID;
+}
+
+// ===== closeSystemTray() =====
+void LX11::closeSystemTray(WId trayID){
+  XDestroyWindow(QX11Info::display(), trayID);
+}
+
 // ===== getNetWMProp() =====
 QString LX11::getNetWMProp(WId win, QString prop){
   Display *disp = QX11Info::display();
