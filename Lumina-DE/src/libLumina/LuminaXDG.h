@@ -72,6 +72,8 @@ public:
 	static void setEnvironmentVars();
 	//Find an icon from the current/default theme
 	static QIcon findIcon(QString iconName, QString fallback = "");
+	//Recursivly compile a list of child directories with *.png files in them
+	static QStringList getChildIconDirs(QString parent);
 	//List all the mime-type directories
 	static QStringList systemMimeDirs();
 	//Find the mime-type of a particular file extension
