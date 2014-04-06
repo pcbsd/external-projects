@@ -8,7 +8,7 @@
 // REFERENCE: (*.desktop files) http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s05.html
 // -- Current Implementation (OCT 2013) --
 // Desktop File Version Compliance: 1.0 (except "DBusActivatable")
-// Icon Theme Compliance: Built in to Qt (QIcon::fromTheme()) with "hicolor" theme default
+// Icon Theme Compliance: Built in to Qt (QIcon::fromTheme()) with "oxygen" theme default
 //===========================================
 
   

@@ -91,6 +91,7 @@ bool LXDG::checkValidity(XDGDesktop dFile){
     case XDGDesktop::APP:
       if(!dFile.tryexec.isEmpty() && !LXDG::checkExec(dFile.tryexec)){ ok=false; if(DEBUG){ qDebug() << " - tryexec does not exist";} }
       else if(dFile.exec.isEmpty() || dFile.name.isEmpty()){ ok=false; if(DEBUG){ qDebug() << " - exec or name is empty";} }
+      else if(!LXDG::checkExec(dFile.exec.section(" ",0,0,QString::SectionSkipEmpty)) ){ ok=false; if(DEBUG){ qDebug() << " - first exec binary does not exist";} }
       break;
     case XDGDesktop::LINK:
       ok = !dFile.url.isEmpty();
