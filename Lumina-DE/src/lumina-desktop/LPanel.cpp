@@ -18,6 +18,7 @@ LPanel::LPanel(QSettings *file, int scr, int num) : QWidget(){
   //Setup the panel
   qDebug() << " -- Setup Panel";
   this->setContentsMargins(0,0,0,0);
+  this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   this->setWindowFlags( Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
   this->setFocusPolicy(Qt::NoFocus);
   this->setWindowTitle("");
@@ -48,13 +49,13 @@ void LPanel::UpdatePanel(){
     this->setGeometry(0,0,screen->screenGeometry(screennum).width(), ht );
     //Set EWMH flag not implemented yet
   }else{
-    this->setGeometry(0,screen->screenGeometry(screennum).height()-ht,screen->availableGeometry(screennum).width(), ht );
+    this->setGeometry(0,screen->screenGeometry(screennum).height()-ht,screen->screenGeometry(screennum).width(), ht );
     //Set EWMH flag not implemented yet
   }
   //Then go through the plugins and create them as necessary
   QStringList plugins = settings->value(PPREFIX+"pluginlist", QStringList()).toStringList();
   if(defaultpanel && plugins.isEmpty()){
-    plugins << "userbutton" << "desktopbar" << "spacer" << "systemtray" << "clock";
+    plugins << "userbutton" << "desktopbar" << "taskmanager" << "spacer"  << "systemtray" << "clock";
   }else if(defaultpanel && !plugins.contains("userbutton") ){
     plugins.prepend("userbutton"); //make sure we have this button since that lets the user logout
   }

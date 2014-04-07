@@ -15,8 +15,11 @@ SOURCES += main.cpp \
 	panel-plugins/userbutton/AppMenu.cpp \
 	panel-plugins/userbutton/LUserButton.cpp \
 	panel-plugins/desktopbar/LDeskBar.cpp \
+	panel-plugins/taskmanager/LTaskManagerPlugin.cpp \
+	panel-plugins/taskmanager/LTaskButton.cpp \
 	panel-plugins/systemtray/LSysTray.cpp \
 	panel-plugins/clock/LClock.cpp
+
 
 
 HEADERS  += Globals.h \
@@ -32,7 +35,10 @@ HEADERS  += Globals.h \
 	panel-plugins/desktopbar/LDeskBar.h \
 	panel-plugins/systemtray/LSysTray.h \
 	panel-plugins/spacer/LSpacer.h \
-	panel-plugins/clock/LClock.h
+	panel-plugins/clock/LClock.h \
+	panel-plugins/taskmanager/LWinInfo.h \
+	panel-plugins/taskmanager/LTaskManagerPlugin.h \
+	panel-plugins/taskmanager/LTaskButton.h
 
 FORMS    += 
 
@@ -52,7 +58,7 @@ defaulticons.path = /usr/local/share/Lumina-DE/
 defaultbackground.files = images/desktop-background.jpg
 defaultbackground.path = /usr/local/share/Lumina-DE/
 
-LIBS     += -lLuminaUtils -lX11 -lXrender
+LIBS     += -lLuminaUtils
 
 TRANSLATIONS =  i18n/Lumina-DE_af.ts \
                 i18n/Lumina-DE_ar.ts \

@@ -17,6 +17,7 @@
 #include "desktopbar/LDeskBar.h"
 #include "spacer/LSpacer.h"
 #include "clock/LClock.h"
+#include "taskmanager/LTaskManagerPlugin.h"
 #include "systemtray/LSysTray.h" //must be last due to X11 compile issues
 
 class NewPP{
@@ -29,6 +30,8 @@ public:
 	    plug = new LDeskBarPlugin(parent);
 	  }else if(plugin=="spacer"){
 	    plug = new LSpacerPlugin(parent);
+	  }else if(plugin=="taskmanager"){
+	    plug = new LTaskManagerPlugin(parent);
 	  }else if(plugin=="systemtray"){
 	    plug = new LSysTray(parent);
 	  }else if(plugin=="clock"){

@@ -11,8 +11,9 @@
 //#include <QTimer>
 //#include <QMenu>
 //#include <QMouseEvent>
+#include <QEvent>
 #include <QWheelEvent>
-//#include <QEvent>
+
 //#include <QObject>
 //#include <QHBoxLayout>
 #include "Globals.h"

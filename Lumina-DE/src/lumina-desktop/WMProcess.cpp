@@ -31,7 +31,8 @@ void WMProcess::startWM(){
 void WMProcess::stopWM(){
   if(isRunning()){
     inShutdown = true;
-    QProcess::startDetached("openbox --exit");//this->kill();
+    QProcess::startDetached("openbox --exit");
+    //this->kill();
     if(!this->waitForFinished(10000)){ this->terminate(); };
   }
 }
@@ -62,6 +63,8 @@ QString WMProcess::setupWM(){
     //if(QFile::exists(confDir+"/rc.xml")){ QFile::rename(confDir+"/rc.xml",confDir+"/openbox-rc.xml"); }
     //QFile::copy(confDir+"/lumina-rc.xml",confDir+"/rc.xml");
     cmd = "/usr/local/bin/openbox --debug --sm-disable --config-file "+confDir+"/lumina-rc.xml";
+  }else if(WM=="eggwm"){
+    cmd = "/usr/local/bin/eggwm";
   }
   return cmd;
 }
