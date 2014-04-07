@@ -144,6 +144,7 @@ void LFileDialog::generateAppList(){
   //Now load the preferred applications
   QStringList apps = getPreferredApplications();
   ui->tree_apps->clear();
+  //ui->tree_apps->setIconSize(QSize(30,30));
   for(int i=0; i<apps.length(); i++){
     bool ok = false;
     XDGDesktop dFile = LXDG::loadDesktopFile(apps[i], ok);

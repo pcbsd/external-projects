@@ -8,7 +8,7 @@
 // REFERENCE: (*.desktop files) http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s05.html
 // -- Current Implementation (OCT 2013) --
 // Desktop File Version Compliance: 1.0 (except "DBusActivatable")
-// Icon Theme Compliance: Built in to Qt (QIcon::fromTheme()) with "hicolor" theme default
+// Icon Theme Compliance: Built in to Qt (QIcon::fromTheme()) with "oxygen" theme default
 //===========================================
 
   
@@ -72,6 +72,8 @@ public:
 	static void setEnvironmentVars();
 	//Find an icon from the current/default theme
 	static QIcon findIcon(QString iconName, QString fallback = "");
+	//Recursivly compile a list of child directories with *.png files in them
+	static QStringList getChildIconDirs(QString parent);
 	//List all the mime-type directories
 	static QStringList systemMimeDirs();
 	//Find the mime-type of a particular file extension

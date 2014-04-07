@@ -91,6 +91,7 @@ bool LXDG::checkValidity(XDGDesktop dFile){
     case XDGDesktop::APP:
       if(!dFile.tryexec.isEmpty() && !LXDG::checkExec(dFile.tryexec)){ ok=false; if(DEBUG){ qDebug() << " - tryexec does not exist";} }
       else if(dFile.exec.isEmpty() || dFile.name.isEmpty()){ ok=false; if(DEBUG){ qDebug() << " - exec or name is empty";} }
+      else if(!LXDG::checkExec(dFile.exec.section(" ",0,0,QString::SectionSkipEmpty)) ){ ok=false; if(DEBUG){ qDebug() << " - first exec binary does not exist";} }
       break;
     case XDGDesktop::LINK:
       ok = !dFile.url.isEmpty();
@@ -269,11 +270,19 @@ QIcon LXDG::findIcon(QString iconName, QString fallback){
   QIcon ico = QIcon::fromTheme(iconName);
   //Try to load the icon from /usr/local/share/pixmaps
   if( ico.isNull() ){
-    qDebug() << "Could not find icon:" << iconName;
+    //qDebug() << "Could not find icon:" << iconName;
     QDir base("/usr/local/share/pixmaps");
     QStringList matches = base.entryList(QStringList() << "*"+iconName+"*", QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
     if( !matches.isEmpty() ){
       ico = QIcon("/usr/local/share/pixmaps/"+matches[0]); //just use the first match
+    }else{
+      //Fallback on a manual search over the default theme directories (hicolor, then oxygen)
+      if( QDir::searchPaths("fallbackicons").isEmpty() ){
+        //Set the fallback search paths
+        QString base = "/usr/local/share/icons/";
+        QDir::setSearchPaths("fallbackicons", QStringList() << getChildIconDirs(base+"hicolor") << getChildIconDirs(base+"oxygen") ); 
+      }
+      ico = QIcon("fallbackicons:"+iconName+".png");
     }
   }
   //Use the fallback icon if necessary
@@ -282,6 +291,21 @@ QIcon LXDG::findIcon(QString iconName, QString fallback){
   }
   //Return the icon
   return ico;
+}
+
+QStringList LXDG::getChildIconDirs(QString parent){
+  //This is a recursive function that returns the absolute path(s) of directories with *.png files
+  QDir D(parent);
+  QStringList out;
+  QStringList dirs = D.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::Reversed);
+  QStringList pngs = D.entryList(QStringList() << "*.png", QDir::Files | QDir::NoDotAndDotDot, QDir::NoSort);
+  if(pngs.length() > 0){ out << D.absolutePath(); }
+  for(int i=0; i<dirs.length(); i++){
+    pngs.clear();
+    pngs = getChildIconDirs(D.absoluteFilePath(dirs[i])); //re-use the old list variable
+    if(pngs.length() > 0){ out << pngs; }
+  }
+  return out;
 }
 
 QStringList LXDG::systemMimeDirs(){
