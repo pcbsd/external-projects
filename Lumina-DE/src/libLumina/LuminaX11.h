@@ -40,6 +40,8 @@ public:
 	
 	//General Info Functions
 	static QList<WId> WindowList(); //List all current windows
+	static QList<WId> GetClientList(); // _NET_WM_CLIENT list
+	static QList<WId> GetClientStackingList(); // _NET_WM_CLIENT_STACKING list
 	static QList<WId> findChildren(Window, int); //Recursive utility for getting all children of a window
 	static WId ActiveWindow();				//List the currently-active window
 	
@@ -49,12 +51,14 @@ public:
 	static void RestoreWindow(WId);		//  Restore (non-iconify) the Window 
 	
 	//Single Window Information
+	static QString WindowClass(WId);		// Class name  (used for ID purposes)
 	static QString WindowName(WId); 		// long name (untranslated)
 	static QString WindowVisibleName(WId); 	// long name (translated)
 	static QString WindowIconName(WId); 	// short name (untranslated)
 	static QString WindowVisibleIconName(WId); // short name (translated)
 	static QPixmap WindowPixmap(WId);		// Pixmap/icon for the window
 	static WINDOWSTATE GetWindowState(WId win, bool forDisplay=true); //State of activity
+	static bool isNormalWindow(WId win, bool includeDialogs=false);
 	
 	//System Tray Management
 	static WId startSystemTray(); //Startup the system tray

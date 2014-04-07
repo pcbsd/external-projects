@@ -10,21 +10,12 @@
 QList<WId> LX11::WindowList(){
   QList<WId> output;
   //Method 1 - EWMH
-  /*Atom a = XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", true);
-  Atom realType;
-  int format;
-  unsigned long num, bytes;
-  unsigned char *data = 0;
-  int status = XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(), a, 0L, (~0L),
-  	     false, AnyPropertyType, &realType, &format, &num, &bytes, &data);
-  if( (status >= Success) && (num > 0) ){
-    for(unsigned int i=0; i<num; i++){
-       Window win = (Window) data[i];
-       if(win != 0){ output << win; }
-    }
-    XFree(data);
-  }*/
-	
+    //Openbox lists the windows split up between various atoms - combine all of them
+    //output << LX11::ActiveWindow();
+    //output << LX11::GetClientList();
+    //output << LX11::GetClientStackingList();
+  
+  
   //Method 2 - ICCC
   output = LX11::findChildren(QX11Info::appRootWindow(),1);
   //Now go through them and filter out all the invalid windows
@@ -34,14 +25,19 @@ QList<WId> LX11::WindowList(){
     //Now filter
     bool good = false;
     QString name = LX11::WindowName(output[i]);
-    if( !name.isEmpty() && !name.startsWith("LuminaDesktop") && name!="PCDM-session" ){ //not an ICCC compliant window (or the desktop)
+    if( !name.isEmpty() && !name.startsWith("LuminaDesktop") && name!="PCDM-session" && name!="Lumina-DE"){ //not an ICCC compliant window (or the desktop)
       //Now check for a usable window (either visible/invisible)
       XWMHints *hints = XGetWMHints(disp, output[i]);
       if( hints!=0 ){ 
-        if(hints->initial_state != WithdrawnState ){ good=true; }
+        if(hints->initial_state == NormalState ){ 
+	  if(LX11::IGNORE != LX11::GetWindowState(output[i]) && LX11::isNormalWindow(output[i],true) ){
+	    good=true;
+	  }
+	}
 	XFree(hints);
       }
     }
+    
     //Remove item from list if not good
     if(!good){
       output.removeAt(i);
@@ -49,6 +45,62 @@ QList<WId> LX11::WindowList(){
     }
   }
   
+  
+  //Validate windows
+  for(int i=0; i<output.length(); i++){
+    bool remove=false;
+	QString name = LX11::WindowName(output[i]);
+    if(output[i] == 0){ remove=true; }
+    else if( name.startsWith("Lumina") || name.isEmpty() ){ remove=true; }
+    
+    if(remove){
+      output.removeAt(i);
+      i--;
+    }
+  }
+  //Return the list
+  return output;
+}
+
+// ===== GetClientList() =====
+QList<WId> LX11::GetClientList(){
+  QList<WId> output;
+  Atom a = XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", true);
+  Atom realType;
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  int status = XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(), a, 0L, (~0L),
+  	     false, AnyPropertyType, &realType, &format, &num, &bytes, &data);
+  if( (status >= Success) && (num > 0) ){
+    Q_ASSERT(format == 32);
+    quint32 *array = (quint32*) data;
+    for(quint32 i=0; i<num; i++){
+       output << (Window) array[i];
+    }
+    XFree(data);
+  }
+  return output;
+}
+
+// ===== GetClientStackingList() =====
+QList<WId> LX11::GetClientStackingList(){
+  QList<WId> output;
+  Atom a = XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", true);
+  Atom realType;
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  int status = XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(), a, 0L, (~0L),
+  	     false, AnyPropertyType, &realType, &format, &num, &bytes, &data);
+  if( (status >= Success) && (num > 0) ){
+    Q_ASSERT(format == 32);
+    quint32 *array = (quint32*) data;
+    for(quint32 i=0; i<num; i++){
+       output << (Window) array[i];
+    }
+    XFree(data);
+  }
   return output;
 }
 
@@ -116,6 +168,18 @@ void LX11::RestoreWindow(WId win){
     XRaiseWindow(disp, win); //raise it to the top of the stack
 }
 
+// ===== WindowClass() =====
+QString LX11::WindowClass(WId win){
+  XClassHint hint;
+  QString clss;
+  if(0 != XGetClassHint(QX11Info::display(), win, &hint) ){
+    clss = QString(hint.res_name); //use the "name" instead of the "class" for identification
+    XFree(hint.res_name);
+    XFree(hint.res_class);
+  }
+  return clss;
+}
+
 // ===== WindowName() =====
 QString LX11::WindowName(WId win){
   QString nm = LX11::getNetWMProp(win, "_NET_WM_NAME");
@@ -162,20 +226,22 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
   //forDisplay lets the function know whether it needs to follow the TaskBar/Pager ignore rules
   Display *disp = QX11Info::display();
   Atom SA = XInternAtom(disp, "_NET_WM_STATE", false);
-  Atom ATTENTION = XInternAtom(disp, "NET_WM_STATE_DEMANDS_ATTENTION", false);
-  Atom SKIPP = XInternAtom(disp, "NET_WM_STATE_SKIP_PAGER", false);
-  Atom HIDDEN = XInternAtom(disp, "NET_WM_STATE_HIDDEN", false);
-  Atom SKIPT = XInternAtom(disp, "NET_WM_STATE_SKIP_TASKBAR", false);
+  Atom ATTENTION = XInternAtom(disp, "_NET_WM_STATE_DEMANDS_ATTENTION", false);
+  Atom SKIPP = XInternAtom(disp, "_NET_WM_STATE_SKIP_PAGER", false);
+  Atom HIDDEN = XInternAtom(disp, "_NET_WM_STATE_HIDDEN", false);
+  Atom SKIPT = XInternAtom(disp, "_NET_WM_STATE_SKIP_TASKBAR", false);
+  Atom MODAL = XInternAtom(disp, "_NET_WM_STATE_MODAL", false);
   Atom type;
   int format;
   unsigned long num, bytes;
   unsigned char *data = 0;
   int status = XGetWindowProperty( disp, win, SA, 0, ~(0L), false, AnyPropertyType,
   	  			&type, &format, &num, &bytes, &data);
+	
   LX11::WINDOWSTATE state = LX11::VISIBLE;
   if(status >= Success && data){
     for(unsigned int i=0; i<num; i++){
-      if(forDisplay && (data[i] == SKIPP || data[i]==SKIPT) ){
+      if(forDisplay && (data[i] == SKIPP || data[i]==SKIPT || data[i]==MODAL) ){
       	state = LX11::IGNORE;
       	break;
       }else if(data[i]==HIDDEN){
@@ -186,6 +252,13 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
     }
     XFree(data);
   }
+  if(state==LX11::VISIBLE){
+    //Use another method for detecting whether the window is actually mapped (more reliable)
+    XWindowAttributes attr;
+    if( 0 != XGetWindowAttributes(disp, win, &attr) ){
+      if(attr.map_state==IsUnmapped){ state=LX11::INVISIBLE; }
+    }
+  }
   //If visible, check whether it is the active window
   if(state == LX11::VISIBLE){
     if(win == LX11::ActiveWindow()){
@@ -193,6 +266,32 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
     }	    
   }
   return state;  	
+}
+
+// ===== isNormalWindow() =====
+bool LX11::isNormalWindow(WId win, bool includeDialogs){
+  //Check to see if it is a "normal" window (as opposed to tooltips, popups, menus, etc)
+  Display *disp = QX11Info::display();
+  Atom SA = XInternAtom(disp, "_NET_WM_WINDOW_TYPE", false);
+  Atom NORMAL = XInternAtom(disp, "_NET_WM_WINDOW_TYPE_NORMAL", false);
+  Atom DIALOG = XInternAtom(disp, "_NET_WM_WINDOW_TYPE_DIALOG", false);
+  Atom type;
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  int status = XGetWindowProperty( disp, win, SA, 0, ~(0L), false, AnyPropertyType,
+  	  			&type, &format, &num, &bytes, &data);
+	
+  bool isNormal = true; //assume normal is true if unlisted (the standard use)
+  if(status >= Success && data){
+    for(unsigned int i=0; i<num; i++){
+      if( data[i] == NORMAL ){ isNormal = true; break; }
+      else if(data[i]==DIALOG && includeDialogs){ isNormal=true; break; }
+      else{ isNormal = false; } //don't break here, might be explicitly listed next
+    }
+    XFree(data);
+  }
+  return isNormal;
 }
 
 // ===== startSystemTray() =====
