@@ -111,7 +111,7 @@ void LDesktop::UpdateBackground(){
   if( (bgFile.toLower()=="default")){ bgFile = "/usr/local/share/Lumina-DE/desktop-background.jpg"; }
   //Now set this file as the current background
   QString display = QString( getenv("DISPLAY") );
-  display = display.section(".",0,0)+desktopnumber; //only the current screen
+  display = display.section(".",0,0)+"."+desktopnumber; //only the current screen
   QString cmd = "xv +24 -maxp -display "+display+" -rmode 5 -quit \""+bgFile+"\"";
   QProcess::startDetached(cmd);
   //Now reset the timer for the next change (if appropriate)
