@@ -22,6 +22,7 @@ LPanel::LPanel(QSettings *file, int scr, int num) : QWidget(){
   this->setWindowFlags( Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
   this->setFocusPolicy(Qt::NoFocus);
   this->setWindowTitle("");
+  LX11::SetAsPanel(this->winId()); //set proper type of window for a panel since Qt can't do it
   layout = new QHBoxLayout(this);
     layout->setContentsMargins(0,0,0,0);
     layout->setAlignment(Qt::AlignLeft);
@@ -47,10 +48,10 @@ void LPanel::UpdatePanel(){
   qDebug() << " - set Geometry";
   if(loc=="top"){
     this->setGeometry(0,0,screen->screenGeometry(screennum).width(), ht );
-    //Set EWMH flag not implemented yet
+    LX11::ReservePanelLocation(this->winId(), 0, 0, this->width(), ht);
   }else{
     this->setGeometry(0,screen->screenGeometry(screennum).height()-ht,screen->screenGeometry(screennum).width(), ht );
-    //Set EWMH flag not implemented yet
+    LX11::ReservePanelLocation(this->winId(), 0, screen->screenGeometry(screennum).height()-ht, this->width(), ht);
   }
   //Then go through the plugins and create them as necessary
   QStringList plugins = settings->value(PPREFIX+"pluginlist", QStringList()).toStringList();

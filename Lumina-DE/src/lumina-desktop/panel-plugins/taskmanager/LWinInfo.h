@@ -5,6 +5,7 @@
 #include <QString>
 #include <QPixmap>
 #include <QIcon>
+#include <QPainter>
 
 // libLumina includes
 #include <LuminaX11.h>
@@ -41,7 +42,10 @@ public:
 
 	QIcon icon(){
 	  if(window==0){ return QIcon(); }
-	  return QIcon(LX11::WindowPixmap(window));
+	  QPixmap pix(":/images/transparent32");
+	  QPainter paint(&pix);
+	    paint.drawPixmap(0, 0, LX11::WindowPixmap(window).scaledToHeight(32) );
+	  return QIcon(pix);
 	}
 	
 	QString Class(){

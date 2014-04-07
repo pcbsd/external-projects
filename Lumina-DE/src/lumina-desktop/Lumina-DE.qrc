@@ -52,6 +52,7 @@
     <file>images/default-video.png</file>
     <file>images/default-videodir.png</file>
     <file>images/default-webfile.png</file>
+    <file>images/transparent32.png</file>
     <file>openboxconf/lumina-rc.xml</file>
     <file>openboxconf/lumina-menu.xml</file>
   </qresource>

@@ -1,8 +1,9 @@
 #include "LTaskManagerPlugin.h"
 
 LTaskManagerPlugin::LTaskManagerPlugin(QWidget *parent) : LPPlugin(parent, "taskmanager"){
+  updating=false;
   timer = new QTimer(this);
-	timer->setInterval(250); // 1/4 second
+	timer->setInterval(100); // 1/10 second
 	connect(timer, SIGNAL(timeout()), this, SLOT(UpdateButtons()) ); 
   connect(LSession::instance(), SIGNAL(WindowListEvent()), this, SLOT(checkWindows()) );
   this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -17,6 +18,9 @@ LTaskManagerPlugin::~LTaskManagerPlugin(){
 //    PRIVATE SLOTS
 //==============
 void LTaskManagerPlugin::UpdateButtons(){
+  if(updating){ timer->start(); return; } //check again in a moment
+  //Make sure this only runs one at a time
+  updating=true;
   //Get the current window list
   QList<WId> winlist = LX11::WindowList();
   qDebug() << "Update Buttons:" << winlist;
@@ -58,6 +62,7 @@ void LTaskManagerPlugin::UpdateButtons(){
     this->layout()->addWidget(but);
     BUTTONS << but;
   }
+  updating=false;
 }
 
 void LTaskManagerPlugin::checkWindows(){

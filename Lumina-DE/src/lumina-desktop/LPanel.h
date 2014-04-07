@@ -22,6 +22,8 @@
 #include "panel-plugins/NewPP.h"
 #include "panel-plugins/LPPlugin.h"
 
+#include <LuminaX11.h>
+
 class LPanel : public QWidget{
 	Q_OBJECT
 private:
