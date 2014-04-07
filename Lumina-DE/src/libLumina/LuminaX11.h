@@ -49,6 +49,8 @@ public:
 	static void CloseWindow(WId);			// Close the Window
 	static void IconifyWindow(WId);			// Iconify (minimize) the Window
 	static void RestoreWindow(WId);		//  Restore (non-iconify) the Window 
+	static void ReservePanelLocation(WId win, int xstart, int ystart, int width, int height);
+	static void SetAsPanel(WId win);
 	
 	//Single Window Information
 	static QString WindowClass(WId);		// Class name  (used for ID purposes)
@@ -58,6 +60,7 @@ public:
 	static QString WindowVisibleIconName(WId); // short name (translated)
 	static QPixmap WindowPixmap(WId);		// Pixmap/icon for the window
 	static WINDOWSTATE GetWindowState(WId win, bool forDisplay=true); //State of activity
+	static WId leaderWindow(WId); 			//Get the main window if this one is a redirect
 	static bool isNormalWindow(WId win, bool includeDialogs=false);
 	
 	//System Tray Management

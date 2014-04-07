@@ -12,39 +12,47 @@ QList<WId> LX11::WindowList(){
   //Method 1 - EWMH
     //Openbox lists the windows split up between various atoms - combine all of them
     //output << LX11::ActiveWindow();
-    //output << LX11::GetClientList();
+    output << LX11::GetClientList();
     //output << LX11::GetClientStackingList();
   
   
   //Method 2 - ICCC
-  output = LX11::findChildren(QX11Info::appRootWindow(),1);
+  /*output = LX11::findChildren(QX11Info::appRootWindow(),4);
   //Now go through them and filter out all the invalid windows
-  Display *disp = QX11Info::display();
+  //Display *disp = QX11Info::display();
 
   for(int i=0; i<output.length(); i++){
     //Now filter
     bool good = false;
-    QString name = LX11::WindowName(output[i]);
-    if( !name.isEmpty() && !name.startsWith("LuminaDesktop") && name!="PCDM-session" && name!="Lumina-DE"){ //not an ICCC compliant window (or the desktop)
-      //Now check for a usable window (either visible/invisible)
-      XWMHints *hints = XGetWMHints(disp, output[i]);
-      if( hints!=0 ){ 
-        if(hints->initial_state == NormalState ){ 
-	  if(LX11::IGNORE != LX11::GetWindowState(output[i]) && LX11::isNormalWindow(output[i],true) ){
-	    good=true;
-	  }
-	}
-	XFree(hints);
-      }
+    //Check if this is a redirect window */
+    /*WId leader = LX11::leaderWindow(output[i]);
+    if(leader !=0 && leader != output[i]){
+      qDebug() << "Leader Found:" << output[i] << " -> " << leader;
+      output[i] = leader; //replace this window with the leader
+      //now go back one to check this window
+      i--;
+      continue;
+    }*/
+    /*
+    //Now check for a usable window (either visible/invisible)
+    if( LX11::isNormalWindow(output[i],true) && !LX11::WindowClass(output[i]).isEmpty() ){
+      good=true;
     }
     
     //Remove item from list if not good
     if(!good){
       output.removeAt(i);
       i--; //make sure we don't miss a window since the list index/length got decreased 
+    }else{
+      //Check if this is a redirect window
+      WId leader = LX11::leaderWindow(output[i]);
+      if(leader !=0 && leader != output[i]){
+        qDebug() << "Leader Found:" << output[i] << " -> " << leader;
+        output[i] = leader; //replace this window with the leader
+      }
     }
   }
-  
+  */
   
   //Validate windows
   for(int i=0; i<output.length(); i++){
@@ -73,10 +81,9 @@ QList<WId> LX11::GetClientList(){
   int status = XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(), a, 0L, (~0L),
   	     false, AnyPropertyType, &realType, &format, &num, &bytes, &data);
   if( (status >= Success) && (num > 0) ){
-    Q_ASSERT(format == 32);
-    quint32 *array = (quint32*) data;
-    for(quint32 i=0; i<num; i++){
-       output << (Window) array[i];
+    Window* array =  (Window*) data;
+    for(unsigned int i=0; i<num; i++){
+       output << array[i];
     }
     XFree(data);
   }
@@ -94,10 +101,9 @@ QList<WId> LX11::GetClientStackingList(){
   int status = XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(), a, 0L, (~0L),
   	     false, AnyPropertyType, &realType, &format, &num, &bytes, &data);
   if( (status >= Success) && (num > 0) ){
-    Q_ASSERT(format == 32);
-    quint32 *array = (quint32*) data;
-    for(quint32 i=0; i<num; i++){
-       output << (Window) array[i];
+    Window* array =  (Window*) data;
+    for(unsigned int i=0; i<num; i++){
+       output << array[i];
     }
     XFree(data);
   }
@@ -135,7 +141,8 @@ WId LX11::ActiveWindow(){
   	  			&type, &format, &num, &bytes, &data);
   WId window=0;
   if(status >= Success && data){
-    window = Window( data );
+    Window *array = (Window*) data;
+    window = array[0];
     XFree(data);
   }
   return window;  		
@@ -168,12 +175,39 @@ void LX11::RestoreWindow(WId win){
     XRaiseWindow(disp, win); //raise it to the top of the stack
 }
 
+// ===== ReservePanelLocation() =====
+void LX11::ReservePanelLocation(WId win, int xstart, int ystart, int width, int height){
+  QString sett;
+  if(ystart==0){
+    //top
+    sett = "0,0,"+QString::number(height)+",0,0,0,0,0,"+QString::number(xstart)+","+QString::number(xstart+width)+",0,0,CARDINAL/32";
+  }else{
+    //bottom
+    sett = "0,0,0,"+QString::number(height)+",0,0,0,0,0,0,"+QString::number(xstart)+","+QString::number(xstart+width)+",CARDINAL/32";
+  }
+  unsigned char *data = (unsigned char *) sett.toUtf8().data();
+  Display *disp = QX11Info::display();
+  Atom WTYPE = XInternAtom(disp, "_NET_WM_STRUT_PARTIAL", false);
+  XChangeProperty( disp, win, WTYPE, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &data, 1L);
+}
+
+// ===== SetAsPanel() =====
+void LX11::SetAsPanel(WId win){
+  //Set this window as the "Dock" type (for showing on top of everthing else)
+  long data[1];
+  Display *disp = QX11Info::display();
+  Atom WTYPE = XInternAtom(disp, "_NET_WM_WINDOW_TYPE", false);
+  Atom DOCK = XInternAtom(disp, "_NET_WM_WINDOW_TYPE_DOCK",false);
+  data[0] = DOCK;
+  XChangeProperty( disp, win, WTYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &data, 1L);
+}
+
 // ===== WindowClass() =====
 QString LX11::WindowClass(WId win){
   XClassHint hint;
   QString clss;
   if(0 != XGetClassHint(QX11Info::display(), win, &hint) ){
-    clss = QString(hint.res_name); //use the "name" instead of the "class" for identification
+    clss = QString(hint.res_class); //class is often capitalized properly, while name is not
     XFree(hint.res_name);
     XFree(hint.res_class);
   }
@@ -240,13 +274,16 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
 	
   LX11::WINDOWSTATE state = LX11::VISIBLE;
   if(status >= Success && data){
+    Atom *array = (Atom*) data;
     for(unsigned int i=0; i<num; i++){
-      if(forDisplay && (data[i] == SKIPP || data[i]==SKIPT || data[i]==MODAL) ){
+      if(forDisplay && (array[i] == SKIPP || array[i]==SKIPT || array[i]==MODAL) ){
       	state = LX11::IGNORE;
       	break;
-      }else if(data[i]==HIDDEN){
+      }else if(array[i]==HIDDEN){
+	qDebug() << "Hidden Window:" << win;
 	state = LX11::INVISIBLE;
-      }else if(data[i]==ATTENTION){
+      }else if(array[i]==ATTENTION){
+	qDebug() << "Attention Window: " << win;
 	state = LX11::ATTENTION;
       }
     }
@@ -254,9 +291,17 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
   }
   if(state==LX11::VISIBLE){
     //Use another method for detecting whether the window is actually mapped (more reliable)
-    XWindowAttributes attr;
-    if( 0 != XGetWindowAttributes(disp, win, &attr) ){
-      if(attr.map_state==IsUnmapped){ state=LX11::INVISIBLE; }
+    Atom STATE = XInternAtom(disp, "WM_STATE", false);
+    //re-use the other variables
+    data = 0;
+    if( 0 != XGetWindowProperty( disp, win, STATE, 0, ~(0L), false, AnyPropertyType, &type, &format, &num, &bytes, &data) ){
+      int *array = (int *) data;
+      if(array[0]==NormalState){ state = LX11::VISIBLE; }
+      else if(array[0]==IconicState){ state = LX11::INVISIBLE; }
+      else{
+        qDebug() << "Unknown State:" << win;
+	state = LX11::IGNORE;
+      }
     }
   }
   //If visible, check whether it is the active window
@@ -266,6 +311,27 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
     }	    
   }
   return state;  	
+}
+
+WId LX11::leaderWindow(WId win){
+  //Get the client leader for this window if it has one
+  Display *disp = QX11Info::display();
+  Atom SA = XInternAtom(disp, "WM_CLIENT_LEADER", false);
+  Atom type;
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  WId leader = 0;
+  int status = XGetWindowProperty( disp, win, SA, 0, ~(0L), false, AnyPropertyType,
+  	  			&type, &format, &num, &bytes, &data);
+  if(status >= Success && data){
+    Window *array = reinterpret_cast<Window*> (data);
+    if(array!=0){
+      leader = array[0];
+    }
+    XFree(data);
+  }
+  return leader;
 }
 
 // ===== isNormalWindow() =====
