@@ -51,6 +51,7 @@ public:
 	static void RestoreWindow(WId);		//  Restore (non-iconify) the Window 
 	static void ReservePanelLocation(WId win, int xstart, int ystart, int width, int height);
 	static void SetAsPanel(WId win);
+	static void SetAsDesktop(WId win);
 	
 	//Single Window Information
 	static QString WindowClass(WId);		// Class name  (used for ID purposes)

@@ -171,8 +171,7 @@ void LX11::IconifyWindow(WId win){
 // ===== RestoreWindow() =====
 void LX11::RestoreWindow(WId win){
   Display *disp = QX11Info::display();
-    XMapWindow(disp, win); //make it visible again
-    XRaiseWindow(disp, win); //raise it to the top of the stack
+    XMapRaised(disp, win); //make it visible again and raise it to the top
 }
 
 // ===== ReservePanelLocation() =====
@@ -198,6 +197,17 @@ void LX11::SetAsPanel(WId win){
   Display *disp = QX11Info::display();
   Atom WTYPE = XInternAtom(disp, "_NET_WM_WINDOW_TYPE", false);
   Atom DOCK = XInternAtom(disp, "_NET_WM_WINDOW_TYPE_DOCK",false);
+  data[0] = DOCK;
+  XChangeProperty( disp, win, WTYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &data, 1L);
+}
+
+// ===== SetAsDesktop() =====
+void LX11::SetAsDesktop(WId win){
+  //Set this window as the "Dock" type (for showing on top of everthing else)
+  long data[1];
+  Display *disp = QX11Info::display();
+  Atom WTYPE = XInternAtom(disp, "_NET_WM_WINDOW_TYPE", false);
+  Atom DOCK = XInternAtom(disp, "_NET_WM_WINDOW_TYPE_DESKTOP",false);
   data[0] = DOCK;
   XChangeProperty( disp, win, WTYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &data, 1L);
 }
@@ -258,17 +268,20 @@ QPixmap LX11::WindowPixmap(WId win){
 // ===== GetWindowState() =====
 LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
   //forDisplay lets the function know whether it needs to follow the TaskBar/Pager ignore rules
-  Display *disp = QX11Info::display();
+	
+  //OPENBOX DOES NOT SUPPORT THE _NET_WM_STATE VALUES (4/7/14)
+  Display *disp = QX11Info::display(); /*
   Atom SA = XInternAtom(disp, "_NET_WM_STATE", false);
   Atom ATTENTION = XInternAtom(disp, "_NET_WM_STATE_DEMANDS_ATTENTION", false);
   Atom SKIPP = XInternAtom(disp, "_NET_WM_STATE_SKIP_PAGER", false);
   Atom HIDDEN = XInternAtom(disp, "_NET_WM_STATE_HIDDEN", false);
   Atom SKIPT = XInternAtom(disp, "_NET_WM_STATE_SKIP_TASKBAR", false);
-  Atom MODAL = XInternAtom(disp, "_NET_WM_STATE_MODAL", false);
-  Atom type;
-  int format;
-  unsigned long num, bytes;
-  unsigned char *data = 0;
+  Atom MODAL = XInternAtom(disp, "_NET_WM_STATE_MODAL", false); */
+  //Atom type;
+  //int format;
+  //unsigned long num, bytes;
+  //unsigned char *data = 0;
+  /*
   int status = XGetWindowProperty( disp, win, SA, 0, ~(0L), false, AnyPropertyType,
   	  			&type, &format, &num, &bytes, &data);
 	
@@ -289,18 +302,27 @@ LX11::WINDOWSTATE LX11::GetWindowState(WId win, bool forDisplay){
     }
     XFree(data);
   }
+  */
+  LX11::WINDOWSTATE state = LX11::VISIBLE;
   if(state==LX11::VISIBLE){
     //Use another method for detecting whether the window is actually mapped (more reliable)
-    Atom STATE = XInternAtom(disp, "WM_STATE", false);
+    /*Atom STATE = XInternAtom(disp, "WM_STATE", false);
     //re-use the other variables
     data = 0;
     if( 0 != XGetWindowProperty( disp, win, STATE, 0, ~(0L), false, AnyPropertyType, &type, &format, &num, &bytes, &data) ){
-      int *array = (int *) data;
+      qint32 *array = (qint32 *) data;
       if(array[0]==NormalState){ state = LX11::VISIBLE; }
       else if(array[0]==IconicState){ state = LX11::INVISIBLE; }
       else{
         qDebug() << "Unknown State:" << win;
 	state = LX11::IGNORE;
+      }
+    }
+    */
+    XWindowAttributes attr;
+    if( 0 != XGetWindowAttributes(disp, win, &attr) ){
+      if(attr.map_state==IsUnmapped || attr.map_state==IsUnviewable){
+	state = LX11::INVISIBLE;
       }
     }
   }
