@@ -23,7 +23,7 @@ void LTaskManagerPlugin::UpdateButtons(){
   updating=true;
   //Get the current window list
   QList<WId> winlist = LX11::WindowList();
-  qDebug() << "Update Buttons:" << winlist;
+  //qDebug() << "Update Buttons:" << winlist;
   //Now go through all the current buttons first
   for(int i=0; i<BUTTONS.length(); i++){
     //Get the windows managed in this button
@@ -57,10 +57,23 @@ void LTaskManagerPlugin::UpdateButtons(){
   //Now go through the remaining windows
   for(int i=0; i<winlist.length(); i++){
     //New windows, create buttons for each (add grouping later)
-    LTaskButton *but = new LTaskButton(this);
-      but->addWindow( LWinInfo(winlist[i]) );
-    this->layout()->addWidget(but);
-    BUTTONS << but;
+    //Check for a button that this can just be added to
+    QString ctxt = LX11::WindowClass(winlist[i]);
+    bool found = false;
+    for(int b=0; b<BUTTONS.length(); b++){
+      if(BUTTONS[b]->text() == ctxt){
+        found = true;
+	BUTTONS[b]->addWindow(winlist[i]);
+	break;
+      }
+    }
+    if(!found){
+      //No group, create a new button
+      LTaskButton *but = new LTaskButton(this);
+        but->addWindow( LWinInfo(winlist[i]) );
+      this->layout()->addWidget(but);
+      BUTTONS << but;
+    }
   }
   updating=false;
 }

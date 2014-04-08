@@ -7,13 +7,7 @@
 #include "LDesktop.h"
 
 LDesktop::LDesktop(int deskNum) : QObject(){
-  //this->setCentralWidget(new QWidget(this));
-  //panel = new QWidget();
-  //panel->setContentsMargins(0,0,0,0);
-  //panel->setWindowFlags( Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
-  //panel->setFocusPolicy(Qt::NoFocus);
-  //this->setContextMenuPolicy(Qt::NoContextMenu);
-  //panel->setWindowTitle("");
+	
   DPREFIX = "desktop-"+QString::number(deskNum)+"/";
   desktopnumber = deskNum;
   desktop = new QDesktopWidget();
@@ -22,50 +16,15 @@ LDesktop::LDesktop(int deskNum) : QObject(){
   settings = new QSettings(QSettings::UserScope, "LuminaDE","desktopsettings", this);
   bgtimer = new QTimer(this);
     bgtimer->setSingleShot(true);
-  //Create the Toolbar (QToolBar does not work unless in a QMainWindow)
-  //toolBar = new QToolBar(this);
-    //toolBar->setMovable(false);
-  //Now populate the toolbar
-  //SetupToolbar(); //always 22 pixels height (systray restriction)
-  //this->addToolBar(Qt::TopToolBarArea, toolBar);
-  //Now setup the widget location/size
-  //this->centralWidget()->setVisible(false);
-  //panel->setGeometry(0,0,desktop->availableGeometry(deskNum).width(), 22 ); //toolBar->height() );
+ 
   //Start the update processes
   QTimer::singleShot(1,this, SLOT(UpdateBackground()) );
   QTimer::singleShot(1,this, SLOT(UpdatePanels()) );
-  //Make sure the toolbar is in the upper-left corner
-  //panel->move(0,0);
+
 }
 
 LDesktop::~LDesktop(){
 }
-
-// =====================
-//   PRIVATE FUNCTIONS 
-// =====================
-/*void LDesktop::SetupToolbar(){
-  panel->setContentsMargins(0,0,0,0);
-  //Create the User Button
-  userTB = new LUserButtonPlugin(this);
-  toolBar->addWidget(userTB);
-
-  deskbar = new LDeskBar(toolBar); //gets added right now
-    deskbar->start();
-  clock = new LClock(this);
-    clock->start();
-  systray = new LSysTray(this);
-    systray->start();
-  
-  QWidget *spacer = new QWidget(this);
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    
-  //Now add them all to the toolbar in the proper order
-  toolBar->addWidget(spacer);
-  toolBar->addWidget(systray);
-  toolBar->addWidget(clock);
-
-}*/
 
 // =====================
 //     PRIVATE SLOTS 

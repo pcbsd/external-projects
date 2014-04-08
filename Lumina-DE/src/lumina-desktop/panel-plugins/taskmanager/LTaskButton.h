@@ -44,6 +44,7 @@ public slots:
 	void UpdateMenus(); //re-create the menus (text + icons)
 
 private slots:
+	void buttonClicked();
 	void closeWindow(); //send the signal to close a window
 	void triggerWindow(); //change b/w visible and invisible
 	void winClicked(QAction*);

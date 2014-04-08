@@ -49,7 +49,7 @@ INCLUDEPATH += ../libLumina /usr/local/include
 desktop.files = Lumina-DE.desktop
 desktop.path = /usr/local/share/xsessions
 
-icons.files = Lumina.png
+icons.files = Lumina-DE.png
 icons.path = /usr/local/share/pixmaps
 
 defaulticons.files = default-icons/

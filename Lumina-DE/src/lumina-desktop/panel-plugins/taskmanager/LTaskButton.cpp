@@ -10,6 +10,7 @@ LTaskButton::LTaskButton(QWidget *parent) : LTBWidget(parent){
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   winMenu->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(openActionMenu()) );
+  connect(this, SIGNAL(clicked()), this, SLOT(buttonClicked()) );
   connect(winMenu, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(openActionMenu()) );
   connect(winMenu, SIGNAL(triggered(QAction*)), this, SLOT(winClicked(QAction*)) );
 }
@@ -81,14 +82,12 @@ void LTaskButton::UpdateButton(){
   if(showstate == Lumina::NOSHOW || WINLIST.length() < 1){ this->setVisible(false); }
   else{ this->setVisible(true); }
   // - functionality
-  disconnect(this, SIGNAL(clicked())); //remove some button connections for a moment
   if(WINLIST.length() == 1){
     //single window
     this->setPopupMode(QToolButton::MenuButtonPopup);
     this->setMenu(actMenu);
     //this->setText("");
     //this->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    connect(this, SIGNAL(clicked()), this, SLOT(triggerWindow()) );
   }else if(WINLIST.length() > 1){
     //multiple windows
     this->setPopupMode(QToolButton::InstantPopup);
@@ -107,6 +106,14 @@ void LTaskButton::UpdateMenus(){
 //=============
 //   PRIVATE SLOTS
 //=============
+void LTaskButton::buttonClicked(){
+  if(WINLIST.length() > 1){
+    winMenu->popup(QCursor::pos());
+  }else{
+    triggerWindow(); 
+  }
+}
+
 void LTaskButton::closeWindow(){
   LWinInfo win = currentWindow();
   LX11::CloseWindow(win.windowID());
@@ -116,9 +123,12 @@ void LTaskButton::closeWindow(){
 void LTaskButton::triggerWindow(){
   LWinInfo win = currentWindow();
   //Check which state the window is currently in and flip it to the other
-  if(LX11::GetWindowState(win.windowID()) == LX11::VISIBLE ){
+  LX11::WINDOWSTATE state = LX11::GetWindowState(win.windowID());
+  if(state == LX11::VISIBLE || state == LX11::ACTIVE){
+    qDebug() << "Minimize Window:" << this->text();
     LX11::IconifyWindow(win.windowID());
   }else{
+    qDebug() << "Restore Window:" << this->text();
     LX11::RestoreWindow(win.windowID());
   }
   cWin = LWinInfo(); //clear the current
