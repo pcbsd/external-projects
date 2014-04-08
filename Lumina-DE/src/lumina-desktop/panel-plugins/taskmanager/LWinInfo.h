@@ -42,10 +42,7 @@ public:
 
 	QIcon icon(){
 	  if(window==0){ return QIcon(); }
-	  QPixmap pix(":/images/transparent32");
-	  QPainter paint(&pix);
-	    paint.drawPixmap(0, 0, LX11::WindowPixmap(window).scaledToHeight(32) );
-	  return QIcon(pix);
+	  return QIcon(LX11::WindowPixmap(window));
 	}
 	
 	QString Class(){

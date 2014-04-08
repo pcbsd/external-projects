@@ -61,7 +61,7 @@ void LTaskManagerPlugin::UpdateButtons(){
     QString ctxt = LX11::WindowClass(winlist[i]);
     bool found = false;
     for(int b=0; b<BUTTONS.length(); b++){
-      if(BUTTONS[b]->text() == ctxt){
+      if(BUTTONS[b]->text().section("(",0,0).simplified() == ctxt){
         found = true;
 	BUTTONS[b]->addWindow(winlist[i]);
 	break;

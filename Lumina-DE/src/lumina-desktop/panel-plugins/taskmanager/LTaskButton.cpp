@@ -56,6 +56,7 @@ LWinInfo LTaskButton::currentWindow(){
 //   PUBLIC SLOTS
 //=============
 void LTaskButton::UpdateButton(){
+  if(winMenu->isVisible()){ return; } //skip this if the window menu is currently visible for now
   winMenu->clear();
   Lumina::STATES showstate = Lumina::NOSHOW;
   for(int i=0; i<WINLIST.length(); i++){
@@ -69,12 +70,18 @@ void LTaskButton::UpdateButton(){
       this->setIcon(WINLIST[i].icon());
       this->setText(WINLIST[i].Class());
     }
+    else if(this->icon().isNull()){
+      this->setIcon(WINLIST[i].icon());
+    }
     winMenu->addAction( WINLIST[i].icon(), WINLIST[i].text() );
     Lumina::STATES stat = WINLIST[i].status();
     if(showstate!=Lumina::NOTIFICATION){ 
 	if(showstate!=Lumina::VISIBLE && stat!=Lumina::NOSHOW){ showstate = stat; } //this is alwasy an improvement
 	else if(stat ==Lumina::NOTIFICATION){ showstate = stat; } //only notification is higher than visible
     }
+  }
+  if(this->icon().isNull()){
+    this->setIcon( LXDG::findIcon("application-x-executable","") );
   }
   this->setState(showstate);
   //Now setup the button appropriately
@@ -92,7 +99,7 @@ void LTaskButton::UpdateButton(){
     //multiple windows
     this->setPopupMode(QToolButton::InstantPopup);
     this->setMenu(winMenu);
-    this->setText(QString::number(WINLIST.length()) );
+    this->setText( this->text() +" ("+QString::number(WINLIST.length())+")" );
     //this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
   }
 }
@@ -115,6 +122,7 @@ void LTaskButton::buttonClicked(){
 }
 
 void LTaskButton::closeWindow(){
+  if(winMenu->isVisible()){ winMenu->hide(); }
   LWinInfo win = currentWindow();
   LX11::CloseWindow(win.windowID());
   cWin = LWinInfo(); //clear the current
