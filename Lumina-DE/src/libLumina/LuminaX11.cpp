@@ -57,15 +57,15 @@ QList<WId> LX11::WindowList(){
   //Validate windows
   for(int i=0; i<output.length(); i++){
     bool remove=false;
-	QString name = LX11::WindowName(output[i]);
+	QString name = LX11::WindowClass(output[i]);
     if(output[i] == 0){ remove=true; }
     else if( name.startsWith("Lumina") || name.isEmpty() ){ remove=true; }
-    
     if(remove){
       output.removeAt(i);
       i--;
     }
   }
+  //qDebug() << output;
   //Return the list
   return output;
 }
@@ -156,7 +156,7 @@ XClientMessageEvent msg;
     msg.message_type = XInternAtom(QX11Info::display(),"_NET_CLOSE_WINDOW",true);
     msg.format = 32;
     msg.data.l[0] = CurrentTime;
-    msg.data.l[1] = 2; //Direct user interaction
+    msg.data.l[1] = 1; //Normal Window state
     msg.data.l[2] = 0;
     msg.data.l[3] = 0;
     msg.data.l[4] = 0;
@@ -176,18 +176,43 @@ void LX11::RestoreWindow(WId win){
 
 // ===== ReservePanelLocation() =====
 void LX11::ReservePanelLocation(WId win, int xstart, int ystart, int width, int height){
-  QString sett;
+  unsigned long strut[12];
+  for(int i=0; i<12; i++){ strut[i] = 0; } //initialize it to all zeros
   if(ystart==0){
     //top
-    sett = "0,0,"+QString::number(height)+",0,0,0,0,0,"+QString::number(xstart)+","+QString::number(xstart+width)+",0,0,CARDINAL/32";
+    strut[2] = height; //top width
+    strut[8] = xstart; //top x start
+    strut[9] = xstart+width; //top x end
   }else{
     //bottom
-    sett = "0,0,0,"+QString::number(height)+",0,0,0,0,0,0,"+QString::number(xstart)+","+QString::number(xstart+width)+",CARDINAL/32";
+    strut[3] = height; //bottom width
+    strut[10] = xstart; //bottom x start
+    strut[11] = xstart+width; //bottom x end
   }
-  unsigned char *data = (unsigned char *) sett.toUtf8().data();
   Display *disp = QX11Info::display();
   Atom WTYPE = XInternAtom(disp, "_NET_WM_STRUT_PARTIAL", false);
-  XChangeProperty( disp, win, WTYPE, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &data, 1L);
+  XChangeProperty( disp, win, WTYPE, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) strut, 12);
+  
+  //Also set the _NET_WM_STRUT property, just in case the WM does not use the newer type
+  WTYPE = XInternAtom(disp, "_NET_WM_STRUT", false);
+  XChangeProperty( disp, win, WTYPE, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) strut, 4);
+}
+
+// ===== SetAsSticky() =====
+void LX11::SetAsSticky(WId win){
+  //make this window "stick" to all virtual desktops
+  Display *disp = QX11Info::display();
+  XEvent ev;
+	ev.xclient.type = ClientMessage;
+	ev.xclient.message_type = XInternAtom(disp, "_NET_WM_STATE", false);
+	ev.xclient.window = win;
+	ev.xclient.format = 32;
+	ev.xclient.data.l[0] = 1; //Add/set this property
+	ev.xclient.data.l[1] = XInternAtom(disp, "_NET_WM_STATE_STICKY", false);
+	ev.xclient.data.l[2] = 0;
+	ev.xclient.data.l[3] = 1; //message is a normal window message
+	
+  XSendEvent(disp, QX11Info::appRootWindow(), false, SubstructureRedirectMask | SubstructureNotifyMask, &ev);
 }
 
 // ===== SetAsPanel() =====
@@ -254,13 +279,44 @@ QString LX11::WindowVisibleIconName(WId win){
 
 // ===== WindowPixmap() =====
 QPixmap LX11::WindowPixmap(WId win){
-  XWMHints *hints = XGetWMHints(QX11Info::display(), win);
+  //Use the _NET_WM_ICON value instead of the WMHints pixmaps
+	// - the pixmaps are very unstable and erratic
   QPixmap pix;
-  if(hints != 0){
-    if( hints->flags & IconPixmapHint ){
-      pix = QPixmap::fromX11Pixmap( hints->icon_pixmap );
+  Display *disp = QX11Info::display();
+  Atom type;
+  Atom SA = XInternAtom(disp, "_NET_WM_ICON", false);
+  int format;
+  unsigned long num, bytes;
+  unsigned char *data = 0;
+  int status = XGetWindowProperty( disp, win, SA, XA_CARDINAL, ~(0L), false, AnyPropertyType,
+  	  			&type, &format, &num, &bytes, &data);
+  if(status != 0 && data != 0){
+    //Now convert it into a Qt image
+    // - first 2 elements are width and height
+    // - data in rows from left to right and top to bottom
+    QImage image(data[0], data[1], QImage::Format_ARGB32); //initial setup
+	for(int i=0; i<image.byteCount()/4; ++i){
+	  ((uint*)image.bits())[i] = data[i+2]; //remember the first 2 element offset
+	}
+    pix = QPixmap::fromImage(image); //Now convert it into the pixmap
+    XFree(data);
+  }
+  
+  if(pix.isNull()){
+    //Fall back on the old method
+    XWMHints *hints = XGetWMHints(QX11Info::display(), win);
+    if(hints != 0){
+      if( hints->flags & IconWindowHint ){
+        pix = QPixmap::grabWindow( hints->icon_window );
+      }
+      else if( hints->flags & IconPixmapHint ){
+        pix = QPixmap::fromX11Pixmap( hints->icon_pixmap ) ;
+      }
+      if( hints->flags & IconMaskHint ){
+        pix.setMask( QPixmap::fromX11Pixmap(hints->icon_mask).createHeuristicMask() );
+      }
+      XFree(hints);
     }
-    XFree(hints);
   }
   return pix;
 }

@@ -14,6 +14,8 @@
 #include <QList>
 #include <QString>
 #include <QPixmap>
+#include <QImage>
+#include <QBitmap>
 #include <QX11Info>
 #include <QDebug>
 // Addition includes for compilations (cause issues with X11 libs later)
@@ -50,6 +52,7 @@ public:
 	static void IconifyWindow(WId);			// Iconify (minimize) the Window
 	static void RestoreWindow(WId);		//  Restore (non-iconify) the Window 
 	static void ReservePanelLocation(WId win, int xstart, int ystart, int width, int height);
+	static void SetAsSticky(WId win);
 	static void SetAsPanel(WId win);
 	static void SetAsDesktop(WId win);
 	
