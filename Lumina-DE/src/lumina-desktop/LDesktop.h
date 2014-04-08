@@ -37,25 +37,15 @@ private:
 	QDesktopWidget *desktop;
 	QString DPREFIX;
 	int desktopnumber;
+	int xoffset;
 	bool defaultdesktop;
-	//QToolBar *toolBar;
 	QList<LPanel*> PANELS;
-	//ToolBar widgets
-	//LUserButtonPlugin *userTB;
-	//LSysTray *systray;
-	//LClock *clock;
-	//QMenu *sysmenu;
-	//LDeskBar *deskbar;
-	
-	//void SetupToolbar();
+	QWidget *bgWindow;
 	
 private slots:
 	void UpdatePanels();
-	//void SystemRun();
+
 	void UpdateBackground();
 
-/*protected:
-	void moveEvent(QMoveEvent *event);
-*/	
 };
 #endif

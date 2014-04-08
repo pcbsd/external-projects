@@ -12,11 +12,19 @@ LDesktop::LDesktop(int deskNum) : QObject(){
   desktopnumber = deskNum;
   desktop = new QDesktopWidget();
   defaultdesktop = (deskNum== desktop->primaryScreen());
+  xoffset = 0;
+  for(int i=0; i<desktopnumber; i++){
+    xoffset += desktop->screenGeometry(i).width();
+  }
   //Setup the internal variables
   settings = new QSettings(QSettings::UserScope, "LuminaDE","desktopsettings", this);
   bgtimer = new QTimer(this);
     bgtimer->setSingleShot(true);
  
+  bgWindow = new QWidget(0);
+	bgWindow->setObjectName("bgWindow");
+	LX11::SetAsDesktop(bgWindow->winId());
+	bgWindow->setGeometry(xoffset,0,desktop->screenGeometry().width(), desktop->screenGeometry().height());
   //Start the update processes
   QTimer::singleShot(1,this, SLOT(UpdateBackground()) );
   QTimer::singleShot(1,this, SLOT(UpdatePanels()) );
@@ -71,8 +79,12 @@ void LDesktop::UpdateBackground(){
   //Now set this file as the current background
   //QString display = QString( getenv("DISPLAY") );
   //display = display.section(".",0,0)+"."+desktopnumber; //only the current screen
-  QString cmd = "xv +24 -maxp -rmode 5 -quit \""+bgFile+"\"";
-  QProcess::startDetached(cmd);
+  QString style = "QWidget#bgWindow{ border-image:url(%1) stretch;}";
+  style = style.arg(bgFile);
+  bgWindow->setStyleSheet(style);
+  bgWindow->show();
+  //QString cmd = "xv +24 -maxp -rmode 5 -quit \""+bgFile+"\"";
+  //QProcess::startDetached(cmd);
   //Now reset the timer for the next change (if appropriate)
   if(bgL.length() > 1){
     //get the length of the timer (in minutes)
