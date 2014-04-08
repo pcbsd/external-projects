@@ -22,7 +22,10 @@ LPanel::LPanel(QSettings *file, int scr, int num) : QWidget(){
   this->setWindowFlags( Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint );
   this->setFocusPolicy(Qt::NoFocus);
   this->setWindowTitle("");
-  LX11::SetAsPanel(this->winId()); //set proper type of window for a panel since Qt can't do it
+  this->setAttribute(Qt::WA_X11NetWmWindowTypeDock);
+  this->setAttribute(Qt::WA_AlwaysShowToolTips);
+  //LX11::SetAsPanel(this->winId()); //set proper type of window for a panel since Qt can't do it
+  LX11::SetAsSticky(this->winId());
   layout = new QHBoxLayout(this);
     layout->setContentsMargins(0,0,0,0);
     layout->setAlignment(Qt::AlignLeft);

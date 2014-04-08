@@ -42,7 +42,9 @@ public:
 
 	QIcon icon(){
 	  if(window==0){ return QIcon(); }
-	  return QIcon(LX11::WindowPixmap(window));
+	  QIcon ico;
+	  ico.addPixmap(LX11::WindowPixmap(window));
+	  return ico;
 	}
 	
 	QString Class(){

@@ -57,6 +57,9 @@ LWinInfo LTaskButton::currentWindow(){
 //=============
 void LTaskButton::UpdateButton(){
   if(winMenu->isVisible()){ return; } //skip this if the window menu is currently visible for now
+  bool statusOnly = WINLIST.length() == LWINLIST.length();
+  LWINLIST = WINLIST;
+  
   winMenu->clear();
   Lumina::STATES showstate = Lumina::NOSHOW;
   for(int i=0; i<WINLIST.length(); i++){
@@ -65,12 +68,10 @@ void LTaskButton::UpdateButton(){
       i--;
       continue;
     }
-    if(i==0){
+    if(i==0 && !statusOnly){
       //Update the button visuals from the first window
       this->setIcon(WINLIST[i].icon());
       this->setText(WINLIST[i].Class());
-    }
-    else if(this->icon().isNull()){
       this->setIcon(WINLIST[i].icon());
     }
     winMenu->addAction( WINLIST[i].icon(), WINLIST[i].text() );
@@ -80,27 +81,22 @@ void LTaskButton::UpdateButton(){
 	else if(stat ==Lumina::NOTIFICATION){ showstate = stat; } //only notification is higher than visible
     }
   }
-  if(this->icon().isNull()){
-    this->setIcon( LXDG::findIcon("application-x-executable","") );
-  }
   this->setState(showstate);
   //Now setup the button appropriately
   // - visibility
   if(showstate == Lumina::NOSHOW || WINLIST.length() < 1){ this->setVisible(false); }
   else{ this->setVisible(true); }
+  if(statusOnly){return; }
   // - functionality
   if(WINLIST.length() == 1){
     //single window
     this->setPopupMode(QToolButton::MenuButtonPopup);
     this->setMenu(actMenu);
-    //this->setText("");
-    //this->setToolButtonStyle(Qt::ToolButtonIconOnly);
   }else if(WINLIST.length() > 1){
     //multiple windows
     this->setPopupMode(QToolButton::InstantPopup);
     this->setMenu(winMenu);
     this->setText( this->text() +" ("+QString::number(WINLIST.length())+")" );
-    //this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
   }
 }
 
