@@ -14,6 +14,7 @@
 #include <QEvent>
 
 #include "Globals.h"
+#include "AppMenu.h"
 
 //LibLumina X11 class
 #include <LuminaX11.h>
@@ -43,7 +44,10 @@ public:
 	//System Tray Utilities
 	static bool StartupSystemTray();
 	static bool CloseSystemTray();
+	//System Access
+	static AppMenu* applicationMenu();
 	
+
 private slots:
 	//system tray functions
 	void parseClientMessageEvent(XClientMessageEvent *event);

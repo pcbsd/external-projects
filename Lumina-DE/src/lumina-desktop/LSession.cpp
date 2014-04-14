@@ -6,7 +6,9 @@
 //===========================================
 #include "LSession.h"
 
+//Private/global variables (for static function access)
 WId LuminaSessionTrayID;
+AppMenu *appmenu;
 
 LSession::LSession(int &argc, char ** argv) : QApplication(argc, argv){
   this->setApplicationName("Lumina Desktop Environment");
@@ -14,6 +16,7 @@ LSession::LSession(int &argc, char ** argv) : QApplication(argc, argv){
   this->setOrganizationName("LuminaDesktopEnvironment");
   this->setQuitOnLastWindowClosed(false); //since the LDesktop's are not necessarily "window"s
   LuminaSessionTrayID = 0;
+  appmenu = new AppMenu();
 }
 
 LSession::~LSession(){
@@ -82,4 +85,11 @@ void LSession::parseClientMessageEvent(XClientMessageEvent *event){
     	//Unknown system tray operation code
     	opcode=1; //junk operation for compiling purposes*/
   }
+}
+
+//===============
+//  SYSTEM ACCESS
+//===============
+AppMenu* LSession::applicationMenu(){
+  return appmenu;
 }

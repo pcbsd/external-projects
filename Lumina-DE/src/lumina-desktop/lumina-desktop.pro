@@ -12,7 +12,7 @@ SOURCES += main.cpp \
 	LSession.cpp \
 	LDesktop.cpp \
 	LPanel.cpp \
-	panel-plugins/userbutton/AppMenu.cpp \
+	AppMenu.cpp \
 	panel-plugins/userbutton/LUserButton.cpp \
 	panel-plugins/desktopbar/LDeskBar.cpp \
 	panel-plugins/taskmanager/LTaskManagerPlugin.cpp \
@@ -27,10 +27,12 @@ HEADERS  += Globals.h \
 	LSession.h \
 	LDesktop.h \
 	LPanel.h \
+	AppMenu.h \
 	panel-plugins/LPPlugin.h \
 	panel-plugins/NewPP.h \
 	panel-plugins/LTBWidget.h \
-	panel-plugins/userbutton/AppMenu.h \
+	desktop-plugins/LDPlugin.h \
+	desktop-plugins/NewDP.h \
 	panel-plugins/userbutton/LUserButton.h \
 	panel-plugins/desktopbar/LDeskBar.h \
 	panel-plugins/systemtray/LSysTray.h \

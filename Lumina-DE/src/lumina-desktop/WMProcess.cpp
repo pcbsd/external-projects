@@ -45,7 +45,7 @@ bool WMProcess::isRunning(){
 }
 
 QString WMProcess::setupWM(){
-  QString WM = "openbox";
+  QString WM = "fluxbox";
   QString cmd="echo WM Disabled";
   //leave the option to add other window managers here (for testing purposes)
   if(WM=="openbox"){
@@ -63,10 +63,18 @@ QString WMProcess::setupWM(){
     //if(QFile::exists(confDir+"/rc.xml")){ QFile::rename(confDir+"/rc.xml",confDir+"/openbox-rc.xml"); }
     //QFile::copy(confDir+"/lumina-rc.xml",confDir+"/rc.xml");
     cmd = "/usr/local/bin/openbox --debug --sm-disable --config-file "+confDir+"/lumina-rc.xml";
-  }else if(WM=="eggwm"){
-    cmd = "/usr/local/bin/eggwm";
   }else if(WM=="fluxbox"){
-    cmd = "/usr/local/bin/fluxbox";
+    QString confDir = QDir::homePath()+"/.lumina";
+    if(!QFile::exists(confDir)){ QDir dir(confDir); dir.mkpath(confDir); }
+    if(!QFile::exists(confDir+"/fluxbox-init-rc")){
+      QFile::copy(":/fluxboxconf/fluxbox-init-rc",confDir+"/fluxbox-init-rc");
+      QFile::setPermissions(confDir+"/fluxbox-init-rc", QFile::ReadOwner | QFile::WriteOwner | QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup);
+    }
+    if(!QFile::exists(confDir+"lumina-menu.xml")){
+      QFile::copy(":/openboxconf/lumina-menu.xml",confDir+"/lumina-menu.xml");
+      QFile::setPermissions(confDir+"/lumina-menu.xml", QFile::ReadOwner | QFile::WriteOwner | QFile::ReadUser | QFile::ReadOther | QFile::ReadGroup);
+    }
+    cmd = "/usr/local/bin/fluxbox -rc "+confDir+"/fluxbox-init-rc";
   }
   return cmd;
 }

@@ -16,6 +16,8 @@ LDesktop::LDesktop(int deskNum) : QObject(){
   for(int i=0; i<desktopnumber; i++){
     xoffset += desktop->screenGeometry(i).width();
   }
+  deskMenu = new QMenu(0);
+  appmenu = new AppMenu(0);
   //Setup the internal variables
   settings = new QSettings(QSettings::UserScope, "LuminaDE","desktopsettings", this);
   bgtimer = new QTimer(this);
@@ -23,24 +25,73 @@ LDesktop::LDesktop(int deskNum) : QObject(){
  
   bgWindow = new QWidget(0);
 	bgWindow->setObjectName("bgWindow");
+	bgWindow->setContextMenuPolicy(Qt::CustomContextMenu);
 	LX11::SetAsDesktop(bgWindow->winId());
 	bgWindow->setGeometry(xoffset,0,desktop->screenGeometry().width(), desktop->screenGeometry().height());
+	connect(bgWindow, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowMenu()) );
+  
   //Start the update processes
+  QTimer::singleShot(1,this, SLOT(UpdateMenu()) );
   QTimer::singleShot(1,this, SLOT(UpdateBackground()) );
+  QTimer::singleShot(1,this, SLOT(UpdateDesktop()) );
   QTimer::singleShot(1,this, SLOT(UpdatePanels()) );
 
 }
 
 LDesktop::~LDesktop(){
+  delete deskMenu;
+  delete appmenu;
+  delete bgWindow;
 }
 
 // =====================
 //     PRIVATE SLOTS 
 // =====================
+void LDesktop::UpdateMenu(){
+  qDebug() << " - Update Menu";
+  deskMenu->clear();
+  //Add in the system applications menu
+  deskMenu->addAction(LXDG::findIcon("utilities-terminal",""), tr("Terminal"), this, SLOT(SystemTerminal()) );
+  deskMenu->addMenu( LSession::applicationMenu() );
+  //Now add the system quit options
+  deskMenu->addSeparator();
+  deskMenu->addAction(LXDG::findIcon("system-log-out",""), tr("Log Out"), this, SLOT(SystemLogout()) );
+}
+
+void LDesktop::UpdateDesktop(){
+  qDebug() << " - Update Desktop";
+  QStringList plugins = settings->value(DPREFIX+"pluginlist", "").toStringList();
+  for(int i=0; i<plugins.length(); i++){
+    //See if this plugin is already there
+    LDPlugin *plug = 0;
+    for(int p=0; p<PLUGINS.length(); p++){
+      if(PLUGINS[p]->type()==plugins[i]){
+	plug = PLUGINS[p];
+	break;
+      }
+    }
+    if(plug==0){
+      //New Plugin
+      qDebug() << " -- New Plugin:" << plugins[i];
+      plug = NewDP::createPlugin(plugins[i], bgWindow);
+      if(plug != 0){ 
+        PLUGINS << plug;
+      }
+    }
+    //Update the plugin geometry
+    if(plug!=0){
+      QString geom = settings->value(DPREFIX+plugins[i]+"/geometry", "").toString();
+      if(geom.isEmpty()){geom = QString::number(i*200)+",0,200,"+QString::number(desktop->availableGeometry().height()); }
+      plug->setGeometry(geom.section(",",0,0).toInt(),geom.section(",",1,1).toInt(), geom.section(",",2,2).toInt(), geom.section(",",3,3).toInt() );
+    }
+  }
+  
+}
+
 void LDesktop::UpdatePanels(){
   qDebug() << " - Update Panels";
   int panels = settings->value(DPREFIX+"panels", 0).toInt();
-  if(panels==0 && defaultdesktop){ panels=1; } //need at least 1 panel on the primary desktop
+  //if(panels==0 && defaultdesktop){ panels=1; } //need at least 1 panel on the primary desktop
   for(int i=0; i<panels; i++){
     if(i<PANELS.length()){
       qDebug() << " -- Update panel "<< i;

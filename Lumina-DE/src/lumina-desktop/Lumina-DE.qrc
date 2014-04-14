@@ -55,5 +55,6 @@
     <file>images/transparent32.png</file>
     <file>openboxconf/lumina-rc.xml</file>
     <file>openboxconf/lumina-menu.xml</file>
+    <file>fluxboxconf/fluxbox-init-rc</file>
   </qresource>
 </RCC>

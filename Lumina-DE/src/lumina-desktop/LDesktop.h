@@ -16,9 +16,13 @@
 #include <QDebug>
 #include <QTimer>
 
+#include <LuminaXDG.h>
 
 #include "LPanel.h"
 #include "Globals.h"
+#include "LSession.h"
+#include "desktop-plugins/LDPlugin.h"
+#include "desktop-plugins/NewDP.h"
 
 class LDesktop : public QObject{
 	Q_OBJECT
@@ -30,6 +34,7 @@ public slots:
 	void SystemLogout(){ QCoreApplication::exit(0); }
 	void SystemRestart(){ SYSTEM::restart(); QCoreApplication::exit(0); }
 	void SystemShutdown(){ SYSTEM::shutdown(); QCoreApplication::exit(0); }
+	void SystemTerminal(){ QProcess::startDetached("xterm"); }
 	
 private:
 	QSettings *settings;
@@ -41,8 +46,18 @@ private:
 	bool defaultdesktop;
 	QList<LPanel*> PANELS;
 	QWidget *bgWindow;
+	QMenu *deskMenu;
+	AppMenu *appmenu;
+	QList<LDPlugin*> PLUGINS;
 	
 private slots:
+	void UpdateMenu();
+	void ShowMenu(){
+	  deskMenu->popup(QCursor::pos());
+	}
+	
+	void UpdateDesktop();
+	
 	void UpdatePanels();
 
 	void UpdateBackground();
