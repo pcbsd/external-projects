@@ -9,6 +9,20 @@
 #ifndef _LUMINA_DESKTOP_VIEW_PLUGIN_H
 #define _LUMINA_DESKTOP_VIEW_PLUGIN_H
 
+#include <QDir>
+#include <QFile>
+#include <QFileSystemWatcher>
+#include <QGridLayout>
+#include <QStringList>
+#include <QList>
+#include <QTimer>
+
+#include <LuminaXDG.h>
+
+#include "../LDPlugin.h"
+#include "DeskItem.h"
+
+
 class DesktopViewPlugin : public LDPlugin{
 	Q_OBJECT
 public:
@@ -16,6 +30,14 @@ public:
 	~DesktopViewPlugin();
 
 private:
+	QString deskDir;
+	QFileSystemWatcher *watcher;
+	QGridLayout *layout;
+	int icoSize, spacing;
+	QList<DeskItem*> ITEMS;
+
+private slots:
+	void UpdateDesktop();
 
 };
 #endif

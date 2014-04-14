@@ -18,7 +18,9 @@ SOURCES += main.cpp \
 	panel-plugins/taskmanager/LTaskManagerPlugin.cpp \
 	panel-plugins/taskmanager/LTaskButton.cpp \
 	panel-plugins/systemtray/LSysTray.cpp \
-	panel-plugins/clock/LClock.cpp
+	panel-plugins/clock/LClock.cpp \
+	desktop-plugins/desktopview/DesktopViewPlugin.cpp \
+	desktop-plugins/desktopview/DeskItem.cpp
 
 
 
@@ -40,7 +42,9 @@ HEADERS  += Globals.h \
 	panel-plugins/clock/LClock.h \
 	panel-plugins/taskmanager/LWinInfo.h \
 	panel-plugins/taskmanager/LTaskManagerPlugin.h \
-	panel-plugins/taskmanager/LTaskButton.h
+	panel-plugins/taskmanager/LTaskButton.h \
+	desktop-plugins/desktopview/DesktopViewPlugin.h \
+	desktop-plugins/desktopview/DeskItem.h
 
 FORMS    += 
 

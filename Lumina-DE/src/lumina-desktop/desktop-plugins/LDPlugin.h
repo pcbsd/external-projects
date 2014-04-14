@@ -24,6 +24,7 @@ private:
 public:
 	LDPlugin(QWidget *parent = 0, QString ptype="unknown") : QWidget(parent){
 	  plugintype=ptype;
+	  this->setStyleSheet( "LDPlugin{ background-color: transparent; }" );
 	}
 	
 	~LDPlugin(){

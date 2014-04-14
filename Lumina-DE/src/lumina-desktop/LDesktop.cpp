@@ -60,7 +60,10 @@ void LDesktop::UpdateMenu(){
 
 void LDesktop::UpdateDesktop(){
   qDebug() << " - Update Desktop";
-  QStringList plugins = settings->value(DPREFIX+"pluginlist", "").toStringList();
+  QStringList plugins = settings->value(DPREFIX+"pluginlist", QStringList()).toStringList();
+  if(defaultdesktop && plugins.isEmpty()){
+    plugins << "desktopview";
+  }
   for(int i=0; i<plugins.length(); i++){
     //See if this plugin is already there
     LDPlugin *plug = 0;
@@ -81,8 +84,15 @@ void LDesktop::UpdateDesktop(){
     //Update the plugin geometry
     if(plug!=0){
       QString geom = settings->value(DPREFIX+plugins[i]+"/geometry", "").toString();
-      if(geom.isEmpty()){geom = QString::number(i*200)+",0,200,"+QString::number(desktop->availableGeometry().height()); }
+      if(geom.isEmpty()){
+	if(plugins.length()==1 && plugins[i]=="desktopview"){ 
+	  geom = "0,0,"+QString::number(desktop->availableGeometry().width())+","+QString::number(desktop->availableGeometry().height());
+	}else{
+	  geom = QString::number(i*200)+",0,200,"+QString::number(desktop->availableGeometry().height());
+	}
+      }
       plug->setGeometry(geom.section(",",0,0).toInt(),geom.section(",",1,1).toInt(), geom.section(",",2,2).toInt(), geom.section(",",3,3).toInt() );
+      plug->show(); //make sure it is visible
     }
   }
   
