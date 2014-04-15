@@ -1,60 +1,6 @@
 <RCC>
   <qresource>
     <file>images/desktop-background.jpg</file>
-    <file>images/default-address.png</file>
-    <file>images/default-application.png</file>
-    <file>images/default-archive.png</file>
-    <file>images/default-audiocd.png</file>
-    <file>images/default-audiodir.png</file>
-    <file>images/default-audiofile.png</file>
-    <file>images/default-battery.png</file>
-    <file>images/default-cancel.png</file>
-    <file>images/default-cd.png</file>
-    <file>images/default-clockdir.png</file>
-    <file>images/default-close.png</file>
-    <file>images/default-computer.png</file>
-    <file>images/default-config.png</file>
-    <file>images/default-cut.png</file>
-    <file>images/default-desktop.png</file>
-    <file>images/default-dir.png</file>
-    <file>images/default-downarrow.png</file>
-    <file>images/default-exe.png</file>
-    <file>images/default-exefile.png</file>
-    <file>images/default-favorite.png</file>
-    <file>images/default-file.png</file>
-    <file>images/default-graphics.png</file>
-    <file>images/default-graphicsdir.png</file>
-    <file>images/default-graphicsfile.png</file>
-    <file>images/default-help.png</file>
-    <file>images/default-home.png</file>
-    <file>images/default-image.png</file>
-    <file>images/default-keys.png</file>
-    <file>images/default-leftarrow.png</file>
-    <file>images/default-logout.png</file>
-    <file>images/default-netdir.png</file>
-    <file>images/default-network.png</file>
-    <file>images/default-networkdir.png</file>
-    <file>images/default-networkfile.png</file>
-    <file>images/default-networklocal.png</file>
-    <file>images/default-print.png</file>
-    <file>images/default-restart.png</file>
-    <file>images/default-rightarrow.png</file>
-    <file>images/default-save.png</file>
-    <file>images/default-search.png</file>
-    <file>images/default-security.png</file>
-    <file>images/default-shutdown.png</file>
-    <file>images/default-textdir.png</file>
-    <file>images/default-textfile.png</file>
-    <file>images/default-trashempty.png</file>
-    <file>images/default-trashfull.png</file>
-    <file>images/default-uparrow.png</file>
-    <file>images/default-user.png</file>
-    <file>images/default-video.png</file>
-    <file>images/default-videodir.png</file>
-    <file>images/default-webfile.png</file>
-    <file>images/transparent32.png</file>
-    <file>openboxconf/lumina-rc.xml</file>
-    <file>openboxconf/lumina-menu.xml</file>
     <file>fluxboxconf/fluxbox-init-rc</file>
   </qresource>
 </RCC>

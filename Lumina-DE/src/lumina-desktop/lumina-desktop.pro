@@ -60,78 +60,75 @@ desktop.path = /usr/local/share/xsessions
 icons.files = Lumina-DE.png
 icons.path = /usr/local/share/pixmaps
 
-defaulticons.files = default-icons/
-defaulticons.path = /usr/local/share/Lumina-DE/
-
 defaultbackground.files = images/desktop-background.jpg
 defaultbackground.path = /usr/local/share/Lumina-DE/
 
 LIBS     += -L../libLumina -lLuminaUtils
 
-TRANSLATIONS =  i18n/Lumina-DE_af.ts \
-                i18n/Lumina-DE_ar.ts \
-                i18n/Lumina-DE_az.ts \
-                i18n/Lumina-DE_bg.ts \
-                i18n/Lumina-DE_bn.ts \
-                i18n/Lumina-DE_bs.ts \
-                i18n/Lumina-DE_ca.ts \
-                i18n/Lumina-DE_cs.ts \
-                i18n/Lumina-DE_cy.ts \
-                i18n/Lumina-DE_da.ts \
-                i18n/Lumina-DE_de.ts \
-                i18n/Lumina-DE_el.ts \
-                i18n/Lumina-DE_en_GB.ts \
-                i18n/Lumina-DE_en_ZA.ts \
-                i18n/Lumina-DE_es.ts \
-                i18n/Lumina-DE_et.ts \
-                i18n/Lumina-DE_eu.ts \
-                i18n/Lumina-DE_fa.ts \
-                i18n/Lumina-DE_fi.ts \
-                i18n/Lumina-DE_fr.ts \
-                i18n/Lumina-DE_fr_CA.ts \
-                i18n/Lumina-DE_gl.ts \
-                i18n/Lumina-DE_he.ts \
-                i18n/Lumina-DE_hi.ts \
-                i18n/Lumina-DE_hr.ts \
-                i18n/Lumina-DE_hu.ts \
-                i18n/Lumina-DE_id.ts \
-                i18n/Lumina-DE_is.ts \
-                i18n/Lumina-DE_it.ts \
-                i18n/Lumina-DE_ja.ts \
-                i18n/Lumina-DE_ka.ts \
-                i18n/Lumina-DE_ko.ts \
-                i18n/Lumina-DE_lt.ts \
-                i18n/Lumina-DE_lv.ts \
-                i18n/Lumina-DE_mk.ts \
-                i18n/Lumina-DE_mn.ts \
-                i18n/Lumina-DE_ms.ts \
-                i18n/Lumina-DE_mt.ts \
-                i18n/Lumina-DE_nb.ts \
-                i18n/Lumina-DE_nl.ts \
-                i18n/Lumina-DE_pa.ts \
-                i18n/Lumina-DE_pl.ts \
-                i18n/Lumina-DE_pt.ts \
-                i18n/Lumina-DE_pt_BR.ts \
-                i18n/Lumina-DE_ro.ts \
-                i18n/Lumina-DE_ru.ts \
-                i18n/Lumina-DE_sk.ts \
-                i18n/Lumina-DE_sl.ts \
-                i18n/Lumina-DE_sr.ts \
-                i18n/Lumina-DE_sv.ts \
-                i18n/Lumina-DE_sw.ts \
-                i18n/Lumina-DE_ta.ts \
-                i18n/Lumina-DE_tg.ts \
-                i18n/Lumina-DE_th.ts \
-                i18n/Lumina-DE_tr.ts \
-                i18n/Lumina-DE_uk.ts \
-                i18n/Lumina-DE_uz.ts \
-                i18n/Lumina-DE_vi.ts \
-                i18n/Lumina-DE_zh_CN.ts \
-                i18n/Lumina-DE_zh_HK.ts \
-                i18n/Lumina-DE_zh_TW.ts \
-                i18n/Lumina-DE_zu.ts
+TRANSLATIONS =  i18n/lumina-desktop_af.ts \
+                i18n/lumina-desktop_ar.ts \
+                i18n/lumina-desktop_az.ts \
+                i18n/lumina-desktop_bg.ts \
+                i18n/lumina-desktop_bn.ts \
+                i18n/lumina-desktop_bs.ts \
+                i18n/lumina-desktop_ca.ts \
+                i18n/lumina-desktop_cs.ts \
+                i18n/lumina-desktop_cy.ts \
+                i18n/lumina-desktop_da.ts \
+                i18n/lumina-desktop_de.ts \
+                i18n/lumina-desktop_el.ts \
+                i18n/lumina-desktop_en_GB.ts \
+                i18n/lumina-desktop_en_ZA.ts \
+                i18n/lumina-desktop_es.ts \
+                i18n/lumina-desktop_et.ts \
+                i18n/lumina-desktop_eu.ts \
+                i18n/lumina-desktop_fa.ts \
+                i18n/lumina-desktop_fi.ts \
+                i18n/lumina-desktop_fr.ts \
+                i18n/lumina-desktop_fr_CA.ts \
+                i18n/lumina-desktop_gl.ts \
+                i18n/lumina-desktop_he.ts \
+                i18n/lumina-desktop_hi.ts \
+                i18n/lumina-desktop_hr.ts \
+                i18n/lumina-desktop_hu.ts \
+                i18n/lumina-desktop_id.ts \
+                i18n/lumina-desktop_is.ts \
+                i18n/lumina-desktop_it.ts \
+                i18n/lumina-desktop_ja.ts \
+                i18n/lumina-desktop_ka.ts \
+                i18n/lumina-desktop_ko.ts \
+                i18n/lumina-desktop_lt.ts \
+                i18n/lumina-desktop_lv.ts \
+                i18n/lumina-desktop_mk.ts \
+                i18n/lumina-desktop_mn.ts \
+                i18n/lumina-desktop_ms.ts \
+                i18n/lumina-desktop_mt.ts \
+                i18n/lumina-desktop_nb.ts \
+                i18n/lumina-desktop_nl.ts \
+                i18n/lumina-desktop_pa.ts \
+                i18n/lumina-desktop_pl.ts \
+                i18n/lumina-desktop_pt.ts \
+                i18n/lumina-desktop_pt_BR.ts \
+                i18n/lumina-desktop_ro.ts \
+                i18n/lumina-desktop_ru.ts \
+                i18n/lumina-desktop_sk.ts \
+                i18n/lumina-desktop_sl.ts \
+                i18n/lumina-desktop_sr.ts \
+                i18n/lumina-desktop_sv.ts \
+                i18n/lumina-desktop_sw.ts \
+                i18n/lumina-desktop_ta.ts \
+                i18n/lumina-desktop_tg.ts \
+                i18n/lumina-desktop_th.ts \
+                i18n/lumina-desktop_tr.ts \
+                i18n/lumina-desktop_uk.ts \
+                i18n/lumina-desktop_uz.ts \
+                i18n/lumina-desktop_vi.ts \
+                i18n/lumina-desktop_zh_CN.ts \
+                i18n/lumina-desktop_zh_HK.ts \
+                i18n/lumina-desktop_zh_TW.ts \
+                i18n/lumina-desktop_zu.ts
 
 dotrans.path=/usr/local/share/Lumina-DE/i18n/
 dotrans.extra=cd i18n && lrelease-qt4 -nounfinished *.ts && cp *.qm /usr/local/share/Lumina-DE/i18n/
 
-INSTALLS += target desktop icons defaulticons defaultbackground dotrans
+INSTALLS += target desktop icons defaultbackground dotrans

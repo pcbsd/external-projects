@@ -4,7 +4,6 @@
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
-
 #include <QDebug>
 //#include <QMainWindow>
 #include <QApplication>
@@ -15,6 +14,7 @@
 #include <QDesktopWidget>
 #include <QSettings>
 #include <QList>
+#include <QTranslator>
 
 #include "WMProcess.h"
 #include "Globals.h"
@@ -22,6 +22,10 @@
 #include "LSession.h"
 
 #include <LuminaXDG.h> //from libLuminaUtils
+
+#ifndef PREFIX
+#define PREFIX QString("/usr/local")
+#endif
 
 QFile logfile(QDir::homePath()+"/.lumina/logs/runtime.log");
 void MessageOutput(QtMsgType type, const char *msg){
@@ -75,8 +79,16 @@ int main(int argc, char ** argv)
     WMProcess WM;
     WM.startWM();
     QObject::connect(&WM, SIGNAL(WMShutdown()), &a, SLOT(closeAllWindows()) );
-    //Now start the desktop
+    //Load the initial translations
+    QTranslator translator;
+    QLocale mylocale;
+    QString langCode = mylocale.name();
     
+    if ( ! QFile::exists(PREFIX + "/share/Lumina-DE/i18n/lumina-desktop_" + langCode + ".qm" ) )  langCode.truncate(langCode.indexOf("_"));
+    translator.load( QString("lumina-desktop_") + langCode, PREFIX + "/share/Lumina-DE/i18n/" );
+    a.installTranslator( &translator );
+    qDebug() << "Locale:" << langCode;
+    //Now start the desktop
     QDesktopWidget DW;
     QList<LDesktop*> screens;
     for(int i=0; i<DW.screenCount(); i++){
