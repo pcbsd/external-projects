@@ -15,7 +15,8 @@ FORMS    += LFileDialog.ui
 
 RESOURCES+= lumina-open.qrc
 
-LIBS     += -lLuminaUtils
+INCLUDEPATH += ../libLumina /usr/local/include
+LIBS     += -L../libLumina -lLuminaUtils
 
 TRANSLATIONS =  i18n/lumina-open_af.ts \
                 i18n/lumina-open_ar.ts \
