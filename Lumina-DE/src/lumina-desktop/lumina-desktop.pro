@@ -66,7 +66,7 @@ defaulticons.path = /usr/local/share/Lumina-DE/
 defaultbackground.files = images/desktop-background.jpg
 defaultbackground.path = /usr/local/share/Lumina-DE/
 
-LIBS     += -lLuminaUtils
+LIBS     += -L../libLumina -lLuminaUtils
 
 TRANSLATIONS =  i18n/Lumina-DE_af.ts \
                 i18n/Lumina-DE_ar.ts \
