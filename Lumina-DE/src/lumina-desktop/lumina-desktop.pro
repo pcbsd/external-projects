@@ -13,6 +13,7 @@ SOURCES += main.cpp \
 	LDesktop.cpp \
 	LPanel.cpp \
 	AppMenu.cpp \
+	SettingsMenu.cpp \
 	panel-plugins/userbutton/LUserButton.cpp \
 	panel-plugins/desktopbar/LDeskBar.cpp \
 	panel-plugins/taskmanager/LTaskManagerPlugin.cpp \
@@ -30,6 +31,7 @@ HEADERS  += Globals.h \
 	LDesktop.h \
 	LPanel.h \
 	AppMenu.h \
+	SettingsMenu.h \
 	panel-plugins/LPPlugin.h \
 	panel-plugins/NewPP.h \
 	panel-plugins/LTBWidget.h \

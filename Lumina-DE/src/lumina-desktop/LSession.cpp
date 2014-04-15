@@ -9,6 +9,7 @@
 //Private/global variables (for static function access)
 WId LuminaSessionTrayID;
 AppMenu *appmenu;
+SettingsMenu *settingsmenu;
 
 LSession::LSession(int &argc, char ** argv) : QApplication(argc, argv){
   this->setApplicationName("Lumina Desktop Environment");
@@ -17,10 +18,12 @@ LSession::LSession(int &argc, char ** argv) : QApplication(argc, argv){
   this->setQuitOnLastWindowClosed(false); //since the LDesktop's are not necessarily "window"s
   LuminaSessionTrayID = 0;
   appmenu = new AppMenu();
+  settingsmenu = new SettingsMenu();
 }
 
 LSession::~LSession(){
-
+  delete settingsmenu;
+  delete appmenu;
 }
 
 bool LSession::x11EventFilter(XEvent *event){
@@ -92,4 +95,8 @@ void LSession::parseClientMessageEvent(XClientMessageEvent *event){
 //===============
 AppMenu* LSession::applicationMenu(){
   return appmenu;
+}
+
+SettingsMenu* LSession::settingsMenu(){
+  return settingsmenu;
 }

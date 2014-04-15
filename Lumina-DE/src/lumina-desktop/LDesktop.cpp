@@ -53,6 +53,8 @@ void LDesktop::UpdateMenu(){
   //Add in the system applications menu
   deskMenu->addAction(LXDG::findIcon("utilities-terminal",""), tr("Terminal"), this, SLOT(SystemTerminal()) );
   deskMenu->addMenu( LSession::applicationMenu() );
+  deskMenu->addSeparator();
+  deskMenu->addMenu( LSession::settingsMenu() );
   //Now add the system quit options
   deskMenu->addSeparator();
   deskMenu->addAction(LXDG::findIcon("system-log-out",""), tr("Log Out"), this, SLOT(SystemLogout()) );
