@@ -12,6 +12,7 @@ WMProcess::WMProcess() : QProcess(){
   QString log = QDir::homePath()+"/.lumina/logs/wm.log";
   if(QFile::exists(log)){ QFile::remove(log); }
   this->setStandardOutputFile(log);
+  ssaver = new QProcess(0);
   inShutdown = false;
 }
 
@@ -26,6 +27,7 @@ void WMProcess::startWM(){
   inShutdown = false;
   QString cmd = setupWM();
   this->start(cmd);
+  ssaver->start("xscreensaver");
 }
 
 void WMProcess::stopWM(){
@@ -33,6 +35,7 @@ void WMProcess::stopWM(){
     inShutdown = true;
     //QProcess::startDetached("openbox --exit");
     this->kill();
+    ssaver->kill();
     if(!this->waitForFinished(10000)){ this->terminate(); };
   }
 }
